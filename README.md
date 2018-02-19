@@ -4,4 +4,4 @@ Tracie Tracker
 
 Tracking things you've done, and feelings you've had and the severity of them.
 
-Stores results in a spreadsheet in your google drive account.  We never see the details.
+Stores results in a spreadsheet in your google drive account.  We never see the details of your records.
