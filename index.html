@@ -1,13 +1,48 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
-    </head>
-    <body>
-        <h1>hello!</h1>
-        
-        Test for GH Pages
-        <br>
-        Anonther test on master.
-    </body>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" type="text/css" />
+    <link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+
+<body>
+    <h1>Tracie Tracker</h1>
+    <span class="version"></span>
+    <form class="full-width-slider">
+        <label for="date1">Date</label>
+        <input type="range" name="date1" id="date1" min="0" max="336" value="336">
+        <div id="date1output" class="date-formatted">now</div>
+    </form>
+    <button onclick="save()"></button>
+
+    <script src="https://cdn.rawgit.com/remy/bind/928c52ce335d6fd2c824b536a97efa460554b9e0/dist/bind.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/app.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+
+    <script>
+        /* global $ */
+        $(document).bind('pageinit', function() {
+
+            $("#date1").on('change', function() {
+                updateDateValue(this.id);
+            });
+
+            function updateDateValue(selector) {
+                var slideValue = $('#' + selector).val();
+                var current = new Date();
+                var dateValue = new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((336 - slideValue) * MINUTE_INCREMENT));
+                var day = dateValue.getDay();
+                var hour = dateValue.getHours();
+                var minutes = dateValue.getMinutes() == 0 ? '00' : dateValue.getMinutes();
+                var prefix = current.getDate() == dateValue.getDate() ? 'Today' : current.getDate() -1 == dateValue.getDate() ? 'Yesterday' : 'Last ' + weekday[day];
+                new Date($('#' + selector + 'output').html(prefix + ' at ' + (hour%12 === 0 ? 12 : hour%12) + ':' + minutes + (hour < 12 ? 'am' : 'pm')));
+            }
+        });
+    </script>
+</body>
+
 </html>

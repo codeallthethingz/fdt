@@ -1,0 +1,18 @@
+.full-width-slider input {
+    display: none;
+}
+
+.full-width-slider .ui-slider-track {
+    margin-left: 15px;
+}
+
+div.ui-slider {
+    height: 20px;
+}
+
+.date-formatted {
+    margin-left: 15px;
+    margin-right: 15px;
+    font-size: 0.8em;
+    color: #666666;
+}
