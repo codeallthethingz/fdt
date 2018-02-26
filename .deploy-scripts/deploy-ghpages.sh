@@ -33,9 +33,9 @@ else
 fi
 
 # copy over or recompile the new site
-cp -u ../index.html .
-cp -ru ../css .
-cp -ru ../js .
+cp -f ../index.html .
+cp -rf ../css .
+cp -rf ../js .
 
 # stage any changes and new files
 git add -A
