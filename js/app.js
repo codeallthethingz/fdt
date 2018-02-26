@@ -2,12 +2,13 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.3';
+var VERSION = '0.0.4';
 var CLIENT_ID = '712538785806-0lu2qefune22njdab1urosfhqvgsbh6j.apps.googleusercontent.com';
 var API_KEY = 'AIzaSyDWcwedLSnOvd_8govqhuMpSHZv5EEwLKw';
 var docId = '';
-var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
+var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
 
 var model = Bind({
     version: VERSION
@@ -15,21 +16,42 @@ var model = Bind({
     'version': '.version'
 });
 
+function iso(someDate) {
+    var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
+    var hour = (someDate.getHours() < 10 ? '0' : '') + someDate.getHours();
+    var minute = (someDate.getMinutes() < 10 ? '0' : '') + someDate.getMinutes();
+    return (1900 + someDate.getYear()) + '-' + month + '-' + someDate.getDate() + ' ' + hour + ':' + minute;
+}
 
-function doSomething() {
+
+function save(eventType, string, date, severity) {
 
     var params = {
         spreadsheetId: docId,
-        range: 'Sheet1!A1:Z1',
-        valueInputOption: 'RAW'
+        range: 'Data!A1:Z1',
+        valueInputOption: 'USER_ENTERED'
     };
+    var data = [];
+    // WARNING ****************************************************************
+    // WARNING ****************************************************************
+    // WARNING ****************************************************************
+    // If you change the order here, you have to do a major version upgrade and 
+    // migrate google sheets.
+    data.push(eventType);
+    data.push('\'' + string);
+    data.push(severity);
+    data.push(iso(date));
+    data.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    pushGeo(data);
+    // WARNING ****************************************************************
+    // WARNING ****************************************************************
+    // WARNING ****************************************************************
 
     var valueRangeBody = {
-        "range": "Sheet1!A1:Z1",
-        "majorDimension": "ROWS",
-        "values": [
-            ["wheels", "$15", "2", "3/15/2016"],
-            ["mirrors", "$100", "1", "3/20/2016"],
+        'range': 'Data!A1:Z1',
+        'majorDimension': 'ROWS',
+        'values': [
+            data
         ],
     }
 
@@ -39,6 +61,12 @@ function doSomething() {
     }, function(reason) {
         console.error('error: ' + reason.result.error.message);
     });
+}
+
+function pushGeo(data) {
+    data.push(currentLocation.latitude ? currentLocation.latitude : 'unknown');
+    data.push(currentLocation.longitude ? currentLocation.longitude : 'unknown');
+    data.push(currentLocation.altitude ? currentLocation.altitude : 'unknown');
 }
 
 function findOrCreateDocId() {
@@ -60,10 +88,43 @@ function findOrCreateDocId() {
         }
         else {
             console.log('not found - creating');
-            gapi.client.sheets.spreadsheets.create().then(function(response) {
+            gapi.client.sheets.spreadsheets.create({}, {
+                "sheets": [{
+                        "properties": {
+                            "title": "Data",
+                            "gridProperties": {
+                                "rowCount": 10000,
+                                "columnCount": 50,
+                                "frozenRowCount": 1
+                            },
+                            "tabColor": {
+                                "red": 0.1,
+                                "green": 0.7,
+                                "blue": 0.2
+                            }
+                        }
+                    },
+                    {
+                        "properties": {
+                            "title": "Unique",
+                            "gridProperties": {
+                                "rowCount": 10000,
+                                "columnCount": 50,
+                                "frozenRowCount": 1
+                            },
+                            "tabColor": {
+                                "red": 0.7,
+                                "green": 0.1,
+                                "blue": 0.1
+                            }
+                        }
+                    }
+                ]
+            }).then(function(response) {
                     docId = response.result.spreadsheetId;
+                    console.log('Created: ' + JSON.stringify(response))
                     gapi.client.sheets.spreadsheets.batchUpdate({
-                        spreadsheetId: response.result.spreadsheetId,
+                        spreadsheetId: docId,
                         resource: {
                             requests: [{
                                 updateSpreadsheetProperties: {
@@ -75,7 +136,45 @@ function findOrCreateDocId() {
                             }]
                         }
                     }).then((response) => {
-                        console.log('Created: ' + JSON.stringify(response.result));
+                        console.log('Title set: ' + JSON.stringify(response.result));
+                        var params = {
+                            spreadsheetId: docId,
+                            range: 'Data!A1:Z1',
+                            valueInputOption: 'USER_ENTERED'
+                        };
+                        var valueRangeBody = {
+                            'range': 'Data!A1:Z1',
+                            'majorDimension': 'ROWS',
+                            'values': [
+                                ['Event Type', 'Value', 'Severity', 'Date Time', 'Timezone', 'Latitude', 'Longitude', 'Altitude']
+                            ],
+                        }
+
+                        gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
+                            console.log('Inserted: ' + JSON.stringify(response.result));
+                        }, function(reason) {
+                            console.error('error: ' + reason.result.error.message);
+                        });
+
+                        var params = {
+                            spreadsheetId: docId,
+                            range: 'Unique!A1:Z1',
+                            valueInputOption: 'USER_ENTERED'
+                        };
+                        var valueRangeBody = {
+                            'range': 'Unique!A1:Z1',
+                            'majorDimension': 'ROWS',
+                            'values': [
+                                ['Unique Causes', 'Unique Effects'],
+                                ['=sort(Unique(FILTER(Data!B2:B,Data!A2:A="cause")))', '=sort(Unique(FILTER(Data!B2:B,Data!A2:A="effect")))'],
+                            ],
+                        }
+
+                        gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
+                            console.log('Inserted: ' + JSON.stringify(response.result));
+                        }, function(reason) {
+                            console.error('error: ' + reason.result.error.message);
+                        });
                     });
                 },
                 function(reason) {
@@ -103,10 +202,30 @@ function initClient() {
 function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         findOrCreateDocId();
+        setupUi();
+        getLocation()
     }
     else {
         gapi.auth2.getAuthInstance().signIn();
     }
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(geoSuccess);
+    }
+    else {
+        // do nothing
+    }
+}
+
+function geoSuccess(geo) {
+    currentLocation = {
+        'latitude': geo.coords.latitude,
+        'longitude': geo.coords.longitude,
+        'altitude': geo.coords.altitude
+    };
+    console.log(currentLocation);
 }
 
 function handleClientLoad() {

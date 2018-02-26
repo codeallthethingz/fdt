@@ -6,7 +6,10 @@
     margin-left: 15px;
 }
 
-div.ui-slider {
+.ui-btn.ui-corner-all {
+    font-size: 13px;
+}
+.ui-slider {
     height: 20px;
 }
 
@@ -15,4 +18,7 @@ div.ui-slider {
     margin-right: 15px;
     font-size: 0.8em;
     color: #666666;
+}
+.version {
+    font-size: 0.5em;
 }
