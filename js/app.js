@@ -83,6 +83,7 @@ function findOrCreateDocId() {
                 var file = files[i];
                 docId = file.id;
                 console.log('found: ' + docId);
+                getUniqueValues();
                 break;
             }
         }
@@ -203,11 +204,36 @@ function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         findOrCreateDocId();
         setupUi();
-        getLocation()
+        getLocation();
     }
     else {
         gapi.auth2.getAuthInstance().signIn();
     }
+}
+
+function getUniqueValues() {
+    var params = {
+        spreadsheetId: docId,
+        range: 'Unique!A2:B',
+        majorDimension: 'COLUMNS'
+    };
+
+    var request = gapi.client.sheets.spreadsheets.values.get(params);
+    request.then(function(response) {
+        var causes = response.result.values[0];
+        var effects = response.result.values[1];
+        var html = '';
+        for (var cause of causes) {
+            html += "<li>" + cause + "</li>";
+        }
+        $('#causeList').html(html);
+        $('#causeList').listview("refresh");
+        $('#causeList').trigger("updatelayout");
+        console.log('Loaded ' + causes.length + ' causes');
+        console.log('Loaded ' + effects.length + ' effects');
+    }, function(reason) {
+        console.error('error: ' + reason.result.error.message);
+    });
 }
 
 function getLocation() {
