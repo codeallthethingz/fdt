@@ -217,20 +217,25 @@ function getUniqueValues() {
         range: 'Unique!A2:B',
         majorDimension: 'COLUMNS'
     };
-
+    
     var request = gapi.client.sheets.spreadsheets.values.get(params);
     request.then(function(response) {
         var causes = response.result.values[0];
         var effects = response.result.values[1];
-        var html = '';
+        var htmlCause = '';
         for (var cause of causes) {
-            html += "<li>" + cause + "</li>";
+            htmlCause += "<li>" + cause + "</li>"; 
         }
-        $('#causeList').html(html);
+        var htmlEffect = '';
+        for (var effect of effects) {
+            htmlEffect += "<li>" + effect + "</li>";
+        }
+        $('#causeList').html(htmlCause);
         $('#causeList').listview("refresh");
         $('#causeList').trigger("updatelayout");
-        console.log('Loaded ' + causes.length + ' causes');
-        console.log('Loaded ' + effects.length + ' effects');
+        $('#effectList').html(htmlEffect);
+        $('#effectList').listview("refresh");
+        $('#effectList').trigger("updatelayout");
     }, function(reason) {
         console.error('error: ' + reason.result.error.message);
     });
