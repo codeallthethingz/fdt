@@ -133,8 +133,30 @@
                 var severity = $('input[name=severity]:checked').val();
                 save('effect', effect, effectDate, severity);
             });
-            
+
         }
+
+        $("#causeList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.tracie-tracker').each(function(index, item) {
+                    $(item).addClass('tracie-tracker');
+                    $(item).on('click', function() {
+                        $('#cause').val($(this).text());
+                    });
+                });
+            });
+        });
+
+        $("#effectList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.tracie-tracker').each(function(index, item) {
+                    $(item).addClass('tracie-tracker');
+                    $(item).on('click', function() {
+                        $('#effect').val($(this).text());
+                    });
+                });
+            });
+        });
     </script>
 
 
