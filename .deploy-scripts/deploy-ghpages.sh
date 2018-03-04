@@ -7,6 +7,8 @@
 # abort the script if there is a non-zero error
 set -e
 
+PROD_CLIENT_ID="712538785806-i0jv11s6pas34nd8i9b5vudum8m1e9vg.apps.googleusercontent.com"
+
 # show where we are on the machine
 pwd
 remote=$(git config remote.origin.url)
@@ -36,6 +38,8 @@ fi
 cp -f ../index.html .
 cp -rf ../css .
 cp -rf ../js .
+sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js
+sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_API_KEY}~g" ../js/app.js
 
 # stage any changes and new files
 git add -A
