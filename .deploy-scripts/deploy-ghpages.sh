@@ -38,8 +38,7 @@ fi
 cp -f ../index.html .
 cp -rf ../css .
 cp -rf ../js .
-sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js
-sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_API_KEY}~g" ../js/app.js
+sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js > app.js
 
 # stage any changes and new files
 git add -A
