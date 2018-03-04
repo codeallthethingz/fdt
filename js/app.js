@@ -4,7 +4,6 @@
 
 var VERSION = '0.0.4';
 var CLIENT_ID = '712538785806-0lu2qefune22njdab1urosfhqvgsbh6j.apps.googleusercontent.com';
-var API_KEY = 'AIzaSyDWcwedLSnOvd_8govqhuMpSHZv5EEwLKw';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
@@ -189,7 +188,6 @@ function initClient() {
     console.log('init client');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
     gapi.client.init({
-        'apiKey': API_KEY,
         'clientId': CLIENT_ID,
         'scope': SCOPE,
         'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
