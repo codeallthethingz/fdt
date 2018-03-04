@@ -3,7 +3,7 @@
 /* global $ */
 
 var VERSION = '0.0.4';
-var CLIENT_ID = '712538785806-0lu2qefune22njdab1urosfhqvgsbh6j.apps.googleusercontent.com';
+var CLIENT_ID = '712538785806-i0jv11s6pas34nd8i9b5vudum8m1e9vg.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
