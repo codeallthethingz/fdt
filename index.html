@@ -12,6 +12,7 @@
     <div data-role="page">
         <div data-role="header">
             <h1>Tracie Tracker <span class="version"></span></h1>
+            <button data-role="button" id="buttonLogout" data-icon="false" data-iconpos="false" class="ui-btn-right">logout</button>
         </div>
 
         <div data-role="content">
@@ -135,6 +136,12 @@
             });
 
         }
+
+        $('#buttonLogout').on('click', function() {
+            gapi.auth2.getAuthInstance().signOut().then(function() {
+                console.log('User signed out.');
+            });
+        })
 
         $("#causeList").on("filterablefilter", function(event, ui) {
             ui.items.each(function(index, item) {
