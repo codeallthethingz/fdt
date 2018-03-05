@@ -2,7 +2,7 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.4';
+var VERSION = '0.0.5';
 var CLIENT_ID = '712538785806-0lu2qefune22njdab1urosfhqvgsbh6j.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -187,6 +187,9 @@ function findOrCreateDocId() {
 function initClient() {
     console.log('init client');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+    
+    $('#buttonLogin').show();
+    $('#buttonLogout').hide();
     gapi.client.init({
         'clientId': CLIENT_ID,
         'scope': SCOPE,
@@ -194,18 +197,20 @@ function initClient() {
     }).then(function() {
         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
         updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        setupUi();
     });
 }
 
 
 function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
+        $('#buttonLogin').hide();
+        $('#buttonLogout').show();
         findOrCreateDocId();
-        setupUi();
         getLocation();
     }
     else {
-        gapi.auth2.getAuthInstance().signIn();
+        //gapi.auth2.getAuthInstance().signIn();
     }
 }
 
