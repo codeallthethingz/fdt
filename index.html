@@ -8,11 +8,11 @@
 </head>
 
 <body>
-
     <div data-role="page">
         <div data-role="header">
             <h1>Tracie Tracker <span class="version"></span></h1>
             <button data-role="button" id="buttonLogout" data-icon="false" data-iconpos="false" class="ui-btn-right">logout</button>
+            <button data-role="button" id="buttonLogin" data-icon="false" data-iconpos="false" class="ui-btn-right" style="display:none">login</button>
         </div>
 
         <div data-role="content">
@@ -140,6 +140,14 @@
         $('#buttonLogout').on('click', function() {
             gapi.auth2.getAuthInstance().signOut().then(function() {
                 console.log('User signed out.');
+                $('#buttonLogin').show();
+                $('#buttonLogout').hide();
+            });
+        })
+        
+        $('#buttonLogin').on('click', function() {
+            gapi.auth2.getAuthInstance().signIn().then(function() {
+                console.log('User signed in.');
             });
         })
 
