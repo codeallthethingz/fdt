@@ -35,7 +35,7 @@ else
 fi
 
 # copy over or recompile the new site
-cp -f ../index.html .
+cp -f ../*.html .
 cp -rf ../css .
 cp -rf ../js .
 sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js > js/app.js
