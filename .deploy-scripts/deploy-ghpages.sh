@@ -7,7 +7,7 @@
 # abort the script if there is a non-zero error
 set -e
 
-PROD_CLIENT_ID="712538785806-i0jv11s6pas34nd8i9b5vudum8m1e9vg.apps.googleusercontent.com"
+PROD_CLIENT_ID="712538785806-7f6lggo668ua7skec0au0n9qmb1n8mrr.apps.googleusercontent.com"
                 
 # show where we are on the machine
 pwd
