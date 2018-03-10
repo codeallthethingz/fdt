@@ -186,10 +186,8 @@ function findOrCreateDocId() {
 
 function initClient() {
     console.log('init client');
-    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
     
-    $('#buttonLogin').show();
-    $('#buttonLogout').hide();
     gapi.client.init({
         'clientId': CLIENT_ID,
         'scope': SCOPE,
