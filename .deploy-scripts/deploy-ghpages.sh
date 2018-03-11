@@ -38,6 +38,7 @@ fi
 cp -f ../*.html .
 cp -rf ../css .
 cp -rf ../js .
+cp -rf ../images .
 sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js > js/app.js
 
 # stage any changes and new files
