@@ -57,8 +57,13 @@ function save(eventType, string, date, severity) {
     var request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
     request.then(function(response) {
         console.log('Inserted: ' + JSON.stringify(response.result));
+        
+        $('.action').hide();
+        $('#' + eventType + 'Success').show().fadeOut(2000);
     }, function(reason) {
         console.error('error: ' + reason.result.error.message);
+        $('.action').hide();
+        $('#' + eventType + 'Failed').html(reason.result.error.message).show();
     });
 }
 
