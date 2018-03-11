@@ -2,6 +2,8 @@ Food Diary Tracker
 ===
 [![CircleCI](https://circleci.com/gh/codeallthethingz/food-diary-tracker.svg?style=svg)](https://circleci.com/gh/trackallthethingz/food-diary-tracker)
 
+This application lives on the gh-pages of this site here: https://codeallthethingz.github.io/food-diary-tracker/index.html
+
 Tracking things you've done, and feelings you've had and the severity of them.  This is called a food diary, but you could use it for anything you 
 want to try and correlate.
 
