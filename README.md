@@ -11,4 +11,4 @@ We never see the details of your records.  We never log anything.
 
 Creates autocomplete from a summary page created in your google sheet.
 
-![Screenshot](images/screenshot.png?raw=true)
+<img src="images/screenshot.png?raw=true" height="200">
