@@ -60,3 +60,8 @@ body {
 .action-success {
     background-color: #99FF99;
 }
+
+.ui-content {
+    overflow-x: visible;
+    padding: 0.5em;
+}
