@@ -234,23 +234,26 @@ function getUniqueValues() {
     $('#overlay').html('Loading autocomplete');
     var request = gapi.client.sheets.spreadsheets.values.get(params);
     request.then(function(response) {
-        var causes = response.result.values[0];
-        var effects = response.result.values[1];
-        var htmlCause = '';
-        for (var cause of causes) {
-            htmlCause += "<li>" + cause + "</li>";
+        if (response.result.values && response.result.values[0]) {
+            var causes = response.result.values[0];
+            var htmlCause = '';
+            for (var cause of causes) {
+                htmlCause += "<li>" + cause + "</li>";
+            }
+            $('#causeList').html(htmlCause);
+            $('#causeList').listview("refresh");
+            $('#causeList').trigger("updatelayout");
         }
-        var htmlEffect = '';
-        for (var effect of effects) {
-            htmlEffect += "<li>" + effect + "</li>";
+        if (response.result.values && response.result.values[1]) {
+            var effects = response.result.values[1];
+            var htmlEffect = '';
+            for (var effect of effects) {
+                htmlEffect += "<li>" + effect + "</li>";
+            }
+            $('#effectList').html(htmlEffect);
+            $('#effectList').listview("refresh");
+            $('#effectList').trigger("updatelayout");
         }
-        $('#causeList').html(htmlCause);
-        $('#causeList').listview("refresh");
-        $('#causeList').trigger("updatelayout");
-        $('#effectList').html(htmlEffect);
-        $('#effectList').listview("refresh");
-        $('#effectList').trigger("updatelayout");
-
         $('body').css('overflow', 'auto');
         $('#overlay').hide();
     }, function(reason) {
