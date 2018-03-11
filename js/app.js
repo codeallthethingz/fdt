@@ -2,7 +2,7 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.7';
+var VERSION = '0.0.8';
 var CLIENT_ID = '712538785806-7f6lggo668ua7skec0au0n9qmb1n8mrr.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -57,7 +57,7 @@ function save(eventType, string, date, severity) {
     var request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
     request.then(function(response) {
         console.log('Inserted: ' + JSON.stringify(response.result));
-        
+
         $('.action').hide();
         $('#' + eventType + 'Success').show().fadeOut(2000);
     }, function(reason) {
@@ -74,9 +74,10 @@ function pushGeo(data) {
 }
 
 function findOrCreateDocId() {
-    console.log('searching');
+
+    $('#overlay').html('Searching for tracker sheet');
     gapi.client.drive.files.list({
-        q: "name='tracie-tracker-data'",
+        q: "name='food-diary-data'",
         fields: 'nextPageToken, files(id, name)',
         spaces: 'drive',
         pageToken: null
@@ -92,7 +93,7 @@ function findOrCreateDocId() {
             }
         }
         else {
-            console.log('not found - creating');
+            $('#overlay').html('Creating new sheet food-diary-data in google drive');
             gapi.client.sheets.spreadsheets.create({}, {
                 "sheets": [{
                         "properties": {
@@ -126,22 +127,21 @@ function findOrCreateDocId() {
                     }
                 ]
             }).then(function(response) {
+                    $('#overlay').html('Created!  Setting title');
                     docId = response.result.spreadsheetId;
-                    console.log('Created: ' + JSON.stringify(response))
                     gapi.client.sheets.spreadsheets.batchUpdate({
                         spreadsheetId: docId,
                         resource: {
                             requests: [{
                                 updateSpreadsheetProperties: {
                                     properties: {
-                                        title: "tracie-tracker-data"
+                                        title: "food-diary-data"
                                     },
                                     fields: 'title'
                                 }
                             }]
                         }
                     }).then((response) => {
-                        console.log('Title set: ' + JSON.stringify(response.result));
                         var params = {
                             spreadsheetId: docId,
                             range: 'Data!A1:Z1',
@@ -155,10 +155,12 @@ function findOrCreateDocId() {
                             ],
                         }
 
+                        $('#overlay').html('Adding data sheet');
                         gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
                             console.log('Inserted: ' + JSON.stringify(response.result));
+                            $('#overlay').html('Inserted');
                         }, function(reason) {
-                            console.error('error: ' + reason.result.error.message);
+                            $('#overlay').html('Error: ' + reason.result.error.message);
                         });
 
                         var params = {
@@ -175,15 +177,19 @@ function findOrCreateDocId() {
                             ],
                         }
 
+                        $('#overlay').html('Adding another data sheet');
                         gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
                             console.log('Inserted: ' + JSON.stringify(response.result));
+                            $('#overlay').html('Inserted');
+                            $('body').css('overflow', 'auto');
+                            $('#overlay').hide();
                         }, function(reason) {
-                            console.error('error: ' + reason.result.error.message);
+                            $('#overlay').html('Error: ' + reason.result.error.message);
                         });
                     });
                 },
                 function(reason) {
-                    console.error('Could not create: ' + reason.result.error.message);
+                    $('#overlay').html('Error: ' + reason.result.error.message);
                 });
         }
     });
@@ -192,7 +198,7 @@ function findOrCreateDocId() {
 function initClient() {
     console.log('init client');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
-    
+
     gapi.client.init({
         'clientId': CLIENT_ID,
         'scope': SCOPE,
@@ -213,7 +219,8 @@ function updateSignInStatus(isSignedIn) {
         getLocation();
     }
     else {
-        //gapi.auth2.getAuthInstance().signIn();
+        $('body').css('overflow', 'hidden');
+        $('#overlay').html('Logged out').show();
     }
 }
 
@@ -223,14 +230,15 @@ function getUniqueValues() {
         range: 'Unique!A2:B',
         majorDimension: 'COLUMNS'
     };
-    
+
+    $('#overlay').html('Loading autocomplete');
     var request = gapi.client.sheets.spreadsheets.values.get(params);
     request.then(function(response) {
         var causes = response.result.values[0];
         var effects = response.result.values[1];
         var htmlCause = '';
         for (var cause of causes) {
-            htmlCause += "<li>" + cause + "</li>"; 
+            htmlCause += "<li>" + cause + "</li>";
         }
         var htmlEffect = '';
         for (var effect of effects) {
@@ -242,7 +250,11 @@ function getUniqueValues() {
         $('#effectList').html(htmlEffect);
         $('#effectList').listview("refresh");
         $('#effectList').trigger("updatelayout");
+
+        $('body').css('overflow', 'auto');
+        $('#overlay').hide();
     }, function(reason) {
+        $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
         console.error('error: ' + reason.result.error.message);
     });
 }
