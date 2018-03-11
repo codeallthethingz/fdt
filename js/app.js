@@ -61,7 +61,7 @@ function save(eventType, string, date, severity) {
         $('.action').hide();
         addItemToAutocomplete(eventType, string);
         $('#' + eventType).val('');
-        $('#' + eventType + 'List').hide();
+        $('#' + eventType + 'List').children('li').addClass('ui-screen-hidden');
         $('#' + eventType + 'Success').show().fadeOut(2000);
     }, function(reason) {
         console.error('error: ' + reason.result.error.message);
@@ -243,9 +243,7 @@ function getUniqueValues() {
             for (var cause of causes) {
                 htmlCause += "<li>" + cause + "</li>";
             }
-            $('#causeList').html(htmlCause);
-            $('#causeList').listview("refresh");
-            $('#causeList').trigger("updatelayout");
+            resetAutocompleteData('cause', htmlCause);
         }
         if (response.result.values && response.result.values[1]) {
             var effects = response.result.values[1];
@@ -253,9 +251,7 @@ function getUniqueValues() {
             for (var effect of effects) {
                 htmlEffect += "<li>" + effect + "</li>";
             }
-            $('#effectList').html(htmlEffect);
-            $('#effectList').listview("refresh");
-            $('#effectList').trigger("updatelayout");
+            resetAutocompleteData('effect', htmlEffect);
         }
         $('body').css('overflow', 'auto');
         $('#overlay').hide();
@@ -269,10 +265,17 @@ function addItemToAutocomplete(eventType, data) {
     var existing = $('#' + eventType + 'List').html();
     if (existing.indexOf('>' + data.trim() + '<') === -1) {
         existing += '<li>' + data.trim() + '</li>';
-        $('#' + eventType + 'List').html(existing);
-        $('#' + eventType + 'List').listview("refresh");
-        $('#' + eventType + 'List').trigger("updatelayout");
+        resetAutocompleteData(eventType, existing)
     }
+}
+
+function resetAutocompleteData(eventType, existing) {
+    $('#' + eventType + 'List').html(existing);
+    $('#' + eventType + 'List').listview("refresh");
+    $('#' + eventType + 'List').trigger("updatelayout");
+    $('#' + eventType + 'List').on('click', function() {
+        $(this).children('li').addClass('ui-screen-hidden');
+    })
 }
 
 function getLocation() {
