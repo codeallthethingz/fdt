@@ -57,7 +57,6 @@ function save(eventType, string, date, severity) {
     var request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
     request.then(function(response) {
         console.log('Inserted: ' + JSON.stringify(response.result));
-
         $('.action').hide();
         addItemToAutocomplete(eventType, string);
         $('#' + eventType).val('');
@@ -241,7 +240,9 @@ function getUniqueValues() {
             var causes = response.result.values[0];
             var htmlCause = '';
             for (var cause of causes) {
-                htmlCause += "<li>" + cause + "</li>";
+                if (htmlCause.indexOf('>' + cause.trim().toLowerCase() + '<') === -1) {
+                    htmlCause += "<li>" + cause.trim().toLowerCase() + "</li>";
+                }
             }
             resetAutocompleteData('cause', htmlCause);
         }
@@ -249,7 +250,9 @@ function getUniqueValues() {
             var effects = response.result.values[1];
             var htmlEffect = '';
             for (var effect of effects) {
-                htmlEffect += "<li>" + effect + "</li>";
+                if (htmlEffect.indexOf('>' + effect.trim().toLowerCase() + '<') === -1) {
+                    htmlEffect += "<li>" + effect.trim().toLowerCase() + "</li>";
+                }
             }
             resetAutocompleteData('effect', htmlEffect);
         }
@@ -263,8 +266,8 @@ function getUniqueValues() {
 
 function addItemToAutocomplete(eventType, data) {
     var existing = $('#' + eventType + 'List').html();
-    if (existing.indexOf('>' + data.trim() + '<') === -1) {
-        existing += '<li>' + data.trim() + '</li>';
+    if (existing.indexOf('>' + data.trim().toLowerCase() + '<') === -1) {
+        existing += '<li>' + data.trim().toLowerCase() + '</li>';
         resetAutocompleteData(eventType, existing)
     }
 }
