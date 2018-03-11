@@ -2,7 +2,7 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.8';
+var VERSION = '0.0.9';
 var CLIENT_ID = '712538785806-t2k038d94gamrfgn5e1k1hvncirn59qo.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -59,6 +59,9 @@ function save(eventType, string, date, severity) {
         console.log('Inserted: ' + JSON.stringify(response.result));
 
         $('.action').hide();
+        addItemToAutocomplete(eventType, string);
+        $('#' + eventType).val('');
+        $('#' + eventType + 'List').hide();
         $('#' + eventType + 'Success').show().fadeOut(2000);
     }, function(reason) {
         console.error('error: ' + reason.result.error.message);
@@ -260,6 +263,16 @@ function getUniqueValues() {
         $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
         console.error('error: ' + reason.result.error.message);
     });
+}
+
+function addItemToAutocomplete(eventType, data) {
+    var existing = $('#' + eventType + 'List').html();
+    if (existing.indexOf('>' + data.trim() + '<') === -1) {
+        existing += '<li>' + data.trim() + '</li>';
+        $('#' + eventType + 'List').html(existing);
+        $('#' + eventType + 'List').listview("refresh");
+        $('#' + eventType + 'List').trigger("updatelayout");
+    }
 }
 
 function getLocation() {
