@@ -199,7 +199,7 @@ function findOrCreateDocId() {
 }
 
 function initClient() {
-    console.log('init client');
+    $('#overlay').html('Starting up!');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
 
     gapi.client.init({
