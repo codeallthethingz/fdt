@@ -2,7 +2,7 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.10';
+var VERSION = '0.0.11';
 var CLIENT_ID = '712538785806-7f6lggo668ua7skec0au0n9qmb1n8mrr.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
