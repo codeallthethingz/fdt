@@ -37,7 +37,7 @@ function save(eventType, string, date, severity) {
     // If you change the order here, you have to do a major version upgrade and 
     // migrate google sheets.
     data.push(eventType);
-    data.push('\'' + string);
+    data.push('\'' + string.trim());
     data.push(severity);
     data.push(iso(date));
     data.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
