@@ -9,6 +9,7 @@
 .ui-btn.ui-corner-all {
     font-size: 13px;
 }
+
 .ui-slider {
     height: 20px;
 }
@@ -19,6 +20,7 @@
     font-size: 0.8em;
     color: #666666;
 }
+
 .version {
     font-size: 0.5em;
 }
@@ -32,4 +34,18 @@
     opacity: 0.3;
     top: 3em;
     z-index: 10000;
+}
+
+.action {
+    width: 100%;
+    text-align: center;
+    padding-top:3px;
+    padding-bottom:3px;
+    border-radius: 3px;
+}
+.action-error {
+    background-color: #FF9999;
+}
+.action-success {
+    background-color: #99FF99;
 }
