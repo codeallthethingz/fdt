@@ -69,3 +69,15 @@ body {
 #severityForm {
     text-align: center;
 }
+
+#footer {
+    text-align: center;
+    background-color: #DDDDDD;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+#footer a {
+    font-size: 12px;
+    text-shadow: none;
+}
