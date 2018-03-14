@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head profile="http://www.w3.org/2005/10/profile">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" type="text/css" />
@@ -90,6 +91,9 @@
             </form>
         </div>
 
+        <div id="footer">
+            <a href="privacy.html">Privacy & Security</a>
+        </div>
     </div>
 
     <script src="https://cdn.rawgit.com/remy/bind/928c52ce335d6fd2c824b536a97efa460554b9e0/dist/bind.min.js"></script>
@@ -149,7 +153,7 @@
                 $('#buttonLogout').hide();
             });
         })
-        
+
         $('#buttonLogin').on('click', function() {
             gapi.auth2.getAuthInstance().signIn().then(function() {
                 console.log('User signed in.');
