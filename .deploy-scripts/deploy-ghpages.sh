@@ -44,7 +44,7 @@ cat ../js/app.js | \
     sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g"  \
     > js/app.js
 cat ../css/main.css | \
-    sed -e "s~height: 9%;~height: 100%~g"  \
+    sed -e "s~height: 9%;~height: 100%;~g"  \
     > css/main.css
 
 # stage any changes and new files
