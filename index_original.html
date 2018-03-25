@@ -12,7 +12,7 @@
     <div id="overlay"></div>
     <div data-role="page">
         <div data-role="header">
-            <h1><img src="images/favicon.png" height="15"> Food Diary <span class="version">0.0.12</span></h1>
+            <h1><img src="images/favicon.png" height="15"> Food Diary <span class="version"></span></h1>
             <button data-role="button" id="buttonLogout" data-icon="false" data-iconpos="false" class="ui-btn-right" style="display:none">logout</button>
             <button data-role="button" id="buttonLogin" data-icon="false" data-iconpos="false" class="ui-btn-right">login</button>
         </div>
@@ -96,10 +96,93 @@
         </div>
     </div>
 
+    <script src="https://cdn.rawgit.com/remy/bind/928c52ce335d6fd2c824b536a97efa460554b9e0/dist/bind.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <script src="js/app.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
+
+    <script>
+        $(document).bind('pageinit', function() {
+            handleClientLoad();
+        });
+        /* global $ */
+        function setupUi() {
+            $('.date-slider').on('change', function() {
+                updateDateValue(this.id);
+            });
+
+            function updateDateValue(selector) {
+                var current = new Date();
+                var dateValue = getDateValue(selector);
+                var day = dateValue.getDay();
+                var hour = dateValue.getHours();
+                var minutes = dateValue.getMinutes() == 0 ? '00' : dateValue.getMinutes();
+                var prefix = current.getDate() == dateValue.getDate() ? 'Today' : current.getDate() - 1 == dateValue.getDate() ? 'Yesterday' : 'Last ' + weekday[day];
+                new Date($('#' + selector + 'Output').html(prefix + ' at ' + (hour % 12 === 0 ? 12 : hour % 12) + ':' + minutes + (hour < 12 ? 'am' : 'pm')));
+            }
+
+            function getDateValue(selector) {
+                var slideValue = $('#' + selector).val();
+                var current = new Date();
+                return new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((336 - slideValue) * MINUTE_INCREMENT));
+            }
+
+            $('.date-slider').each(function() {
+                updateDateValue(this.id);
+            });
+
+            $('#saveCauseButton').on('click', function() {
+                var cause = $('#cause').val();
+                var causeDate = getDateValue('causeDate');
+                save('cause', cause, causeDate, -1);
+            });
+            $('#saveEffectButton').on('click', function() {
+                var effect = $('#effect').val();
+                var effectDate = getDateValue('effectDate');
+                var severity = $('input[name=severity]:checked').val();
+                save('effect', effect, effectDate, severity);
+            });
+
+        }
+
+        $('#buttonLogout').on('click', function() {
+            gapi.auth2.getAuthInstance().signOut().then(function() {
+                console.log('User signed out.');
+                $('#buttonLogin').show();
+                $('#buttonLogout').hide();
+            });
+        })
+
+        $('#buttonLogin').on('click', function() {
+            gapi.auth2.getAuthInstance().signIn().then(function() {
+                console.log('User signed in.');
+            });
+        })
+
+        $("#causeList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.food-diary').each(function(index, item) {
+                    $(item).addClass('food-diary');
+                    $(item).on('click', function() {
+                        $('#cause').val($(this).text());
+                    });
+                });
+            });
+        });
+
+        $("#effectList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.food-diary').each(function(index, item) {
+                    $(item).addClass('food-diary');
+                    $(item).on('click', function() {
+                        $('#effect').val($(this).text());
+                    });
+                });
+            });
+        });
+    </script>
+
 
 </body>
 

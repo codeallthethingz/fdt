@@ -2,18 +2,12 @@
 /* global Bind */
 /* global $ */
 
-var VERSION = '0.0.11';
 var CLIENT_ID = '712538785806-t2k038d94gamrfgn5e1k1hvncirn59qo.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
 var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
 
-var model = Bind({
-    version: VERSION
-}, {
-    'version': '.version'
-});
 
 function iso(someDate) {
     var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
@@ -34,7 +28,7 @@ function save(eventType, string, date, severity) {
     // WARNING ****************************************************************
     // WARNING ****************************************************************
     // WARNING ****************************************************************
-    // If you change the order here, you have to do a major version upgrade and 
+    // If you change the order here, you have to do a major version upgrade and
     // migrate google sheets.
     data.push(eventType);
     data.push('\'' + string.trim());
