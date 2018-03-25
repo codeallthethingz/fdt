@@ -7,7 +7,15 @@ var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
 var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
+$('.version').html('0.0.12');
 
+$(document).on("pageinit", "#pageData", function(event) {
+    showOverflow();
+    gapi.load('client:auth2', initClient);
+});
+$(document).on("pageinit", "#pagePrivacy", function(event) {
+    hideOverflow();
+});
 
 function iso(someDate) {
     var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
@@ -177,8 +185,7 @@ function findOrCreateDocId() {
                         gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
                             console.log('Inserted: ' + JSON.stringify(response.result));
                             $('#overlay').html('Inserted');
-                            $('body').css('overflow', 'auto');
-                            $('#overlay').hide();
+                            hideOverflow();
                         }, function(reason) {
                             $('#overlay').html('Error: ' + reason.result.error.message);
                         });
@@ -189,6 +196,16 @@ function findOrCreateDocId() {
                 });
         }
     });
+}
+
+function hideOverflow() {
+    $('body').css('overflow', 'auto');
+    $('#overlay').hide();
+}
+
+function showOverflow() {
+    $('body').css('overflow', 'hidden');
+    $('#overlay').html('Logged out').show();
 }
 
 function initClient() {
@@ -215,8 +232,7 @@ function updateSignInStatus(isSignedIn) {
         getLocation();
     }
     else {
-        $('body').css('overflow', 'hidden');
-        $('#overlay').html('Logged out').show();
+        showOverlay();
     }
 }
 
@@ -250,8 +266,7 @@ function getUniqueValues() {
             }
             resetAutocompleteData('effect', htmlEffect);
         }
-        $('body').css('overflow', 'auto');
-        $('#overlay').hide();
+        hideOverflow();
     }, function(reason) {
         $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
         console.error('error: ' + reason.result.error.message);
@@ -304,4 +319,79 @@ function handleSignInClick(event) {
 
 function handleSignOutClick(event) {
     gapi.auth2.getAuthInstance().signOut();
+}
+
+
+function setupUi() {
+    $('.date-slider').on('change', function() {
+        updateDateValue(this.id);
+    });
+
+    function updateDateValue(selector) {
+        var current = new Date();
+        var dateValue = getDateValue(selector);
+        var day = dateValue.getDay();
+        var hour = dateValue.getHours();
+        var minutes = dateValue.getMinutes() == 0 ? '00' : dateValue.getMinutes();
+        var prefix = current.getDate() == dateValue.getDate() ? 'Today' : current.getDate() - 1 == dateValue.getDate() ? 'Yesterday' : 'Last ' + weekday[day];
+        new Date($('#' + selector + 'Output').html(prefix + ' at ' + (hour % 12 === 0 ? 12 : hour % 12) + ':' + minutes + (hour < 12 ? 'am' : 'pm')));
+    }
+
+    function getDateValue(selector) {
+        var slideValue = $('#' + selector).val();
+        var current = new Date();
+        return new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((336 - slideValue) * MINUTE_INCREMENT));
+    }
+
+    $('.date-slider').each(function() {
+        updateDateValue(this.id);
+    });
+
+    $('#saveCauseButton').on('click', function() {
+        var cause = $('#cause').val();
+        var causeDate = getDateValue('causeDate');
+        save('cause', cause, causeDate, -1);
+    });
+    $('#saveEffectButton').on('click', function() {
+        var effect = $('#effect').val();
+        var effectDate = getDateValue('effectDate');
+        var severity = $('input[name=severity]:checked').val();
+        save('effect', effect, effectDate, severity);
+    });
+
+    $('#buttonLogout').on('click', function() {
+        gapi.auth2.getAuthInstance().signOut().then(function() {
+            console.log('User signed out.');
+            $('#buttonLogin').show();
+            $('#buttonLogout').hide();
+        });
+    })
+
+    $('#buttonLogin').on('click', function() {
+        gapi.auth2.getAuthInstance().signIn().then(function() {
+            console.log('User signed in.');
+        });
+    })
+
+    $("#causeList").on("filterablefilter", function(event, ui) {
+        ui.items.each(function(index, item) {
+            $(item).not('.food-diary').each(function(index, item) {
+                $(item).addClass('food-diary');
+                $(item).on('click', function() {
+                    $('#cause').val($(this).text());
+                });
+            });
+        });
+    });
+
+    $("#effectList").on("filterablefilter", function(event, ui) {
+        ui.items.each(function(index, item) {
+            $(item).not('.food-diary').each(function(index, item) {
+                $(item).addClass('food-diary');
+                $(item).on('click', function() {
+                    $('#effect').val($(this).text());
+                });
+            });
+        });
+    });
 }
