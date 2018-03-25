@@ -340,7 +340,7 @@ function setupUi() {
     function getDateValue(selector) {
         var slideValue = $('#' + selector).val();
         var current = new Date();
-        return new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((336 - slideValue) * MINUTE_INCREMENT));
+        return new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((100 - slideValue) * MINUTE_INCREMENT));
     }
 
     $('.date-slider').each(function() {
