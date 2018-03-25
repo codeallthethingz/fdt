@@ -6,15 +6,16 @@
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" type="text/css" />
     <link rel="stylesheet" href="css/main.css" type="text/css" />
     <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 </head>
 
 <body>
     <div id="overlay"></div>
-    <div data-role="page">
+    <div id="pageData" data-role="page">
         <div data-role="header">
             <h1><img src="images/favicon.png" height="15"> Food Diary <span class="version"></span></h1>
-            <button data-role="button" id="buttonLogout" data-icon="false" data-iconpos="false" class="ui-btn-right" style="display:none">logout</button>
-            <button data-role="button" id="buttonLogin" data-icon="false" data-iconpos="false" class="ui-btn-right">login</button>
         </div>
 
         <div data-role="content">
@@ -90,107 +91,59 @@
                 <input id="saveEffectButton" type="button" data-icon="cloud" value="Save Effect into the Cloud">
             </form>
         </div>
-
-
         <div data-role="footer" data-id="foo1" data-position="fixed">
             <div data-role="navbar">
                 <ul>
-                    <li><a class="ui-btn-active ui-state-persist" href="index.html">Data</a></li>
-                    <li><a href="analytics.html">Analytics</a></li>
-                    <li><a href="privacy.html">Privacy & Security</a></li>
+                    <li><a class="ui-btn-active ui-state-persist" href="#pageData">Data</a></li>
+                    <li><a href="#pagePrivacy">Privacy & Security</a></li>
                 </ul>
             </div>
         </div>
-
     </div>
-    <script src="https://cdn.rawgit.com/remy/bind/928c52ce335d6fd2c824b536a97efa460554b9e0/dist/bind.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-    <script src="js/app.js"></script>
+
+    <div id="pagePrivacy" data-role="page">
+
+        <div data-role="header">
+            <h1><img src="images/favicon.png" height="15"> Food Diary <span class="version"></span></h1>
+        </div>
+
+        <div data-role="content">
+            <h2>Privacy & Security Policy</h2>
+            <p>Food Diary Tracker built the Food Diary Tracker app as a open source app. This service is provided by Food Diary Tracker at no cost and is intended for use as is.</p>
+            <p><strong>Information Collection and Use</strong></p>
+            <p>We collect no data about anything.</p>
+            <p><strong>Log Data</strong></p>
+            <p>There is no log data collected.</p>
+            <p><strong>Cookies</strong></p>
+            <p>Cookies are files with small amount of data that is commonly used an anonymous unique identifier. These are sent to your browser from the website that you visit and are stored on your devices's internal memory.</p>
+            <p><strong>Service Providers</strong></p>
+            <p>We do not employ any third party providers.</p>
+            <p><strong>Security</strong></p>
+            <p>We do not collect any data about you, but remember that no method of transmission over the internet, or method of electronic storage is 100% secure and reliable, and we cannot guarantee its absolute security.</p>
+            <p><strong>Links to Other Sites</strong></p>
+            <p>This Service may contain links to other sites. If you click on a third-party link, you will be directed to that site. Note that these external sites are not operated by us. Therefore, I strongly advise you to review the Privacy Policy of these
+                websites. We have no control over, and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.</p>
+            <p><strong>Children's Privacy</strong></p>
+            <p>We collect no data, therefore children can use this site</p>
+            <p><strong>Changes to This Privacy Policy</strong></p>
+            <p>We may update our Privacy Policy from time to time. Thus, you are advised to review this page periodically for any changes. We will notify you of any changes by posting the new Privacy Policy on this page. These changes are effective immediately,
+                after they are posted on this page.</p>
+            <p><strong>Contact Us</strong></p>
+            <p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us. food-diary-tracker@gmail.com</p>
+        </div>
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="index.html">Data</a></li>
+                    <li><a class="ui-btn-active ui-state-persist" href="privacy.html">Privacy & Security</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://apis.google.com/js/api.js"></script>
-
-    <script>
-        $(document).bind('pageinit', function() {
-            handleClientLoad();
-        });
-        /* global $ */
-        function setupUi() {
-            $('.date-slider').on('change', function() {
-                updateDateValue(this.id);
-            });
-
-            function updateDateValue(selector) {
-                var current = new Date();
-                var dateValue = getDateValue(selector);
-                var day = dateValue.getDay();
-                var hour = dateValue.getHours();
-                var minutes = dateValue.getMinutes() == 0 ? '00' : dateValue.getMinutes();
-                var prefix = current.getDate() == dateValue.getDate() ? 'Today' : current.getDate() - 1 == dateValue.getDate() ? 'Yesterday' : 'Last ' + weekday[day];
-                new Date($('#' + selector + 'Output').html(prefix + ' at ' + (hour % 12 === 0 ? 12 : hour % 12) + ':' + minutes + (hour < 12 ? 'am' : 'pm')));
-            }
-
-            function getDateValue(selector) {
-                var slideValue = $('#' + selector).val();
-                var current = new Date();
-                return new Date((Math.round(current.getTime() / MINUTE_INCREMENT) * MINUTE_INCREMENT) - ((336 - slideValue) * MINUTE_INCREMENT));
-            }
-
-            $('.date-slider').each(function() {
-                updateDateValue(this.id);
-            });
-
-            $('#saveCauseButton').on('click', function() {
-                var cause = $('#cause').val();
-                var causeDate = getDateValue('causeDate');
-                save('cause', cause, causeDate, -1);
-            });
-            $('#saveEffectButton').on('click', function() {
-                var effect = $('#effect').val();
-                var effectDate = getDateValue('effectDate');
-                var severity = $('input[name=severity]:checked').val();
-                save('effect', effect, effectDate, severity);
-            });
-
-        }
-
-        $('#buttonLogout').on('click', function() {
-            gapi.auth2.getAuthInstance().signOut().then(function() {
-                console.log('User signed out.');
-                $('#buttonLogin').show();
-                $('#buttonLogout').hide();
-            });
-        })
-
-        $('#buttonLogin').on('click', function() {
-            gapi.auth2.getAuthInstance().signIn().then(function() {
-                console.log('User signed in.');
-            });
-        })
-
-        $("#causeList").on("filterablefilter", function(event, ui) {
-            ui.items.each(function(index, item) {
-                $(item).not('.food-diary').each(function(index, item) {
-                    $(item).addClass('food-diary');
-                    $(item).on('click', function() {
-                        $('#cause').val($(this).text());
-                    });
-                });
-            });
-        });
-
-        $("#effectList").on("filterablefilter", function(event, ui) {
-            ui.items.each(function(index, item) {
-                $(item).not('.food-diary').each(function(index, item) {
-                    $(item).addClass('food-diary');
-                    $(item).on('click', function() {
-                        $('#effect').val($(this).text());
-                    });
-                });
-            });
-        });
-    </script>
-
-
+    <script src="js/app.js"></script>
 </body>
 
 </html>
