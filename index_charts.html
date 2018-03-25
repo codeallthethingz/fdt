@@ -94,13 +94,26 @@
             <div data-role="navbar">
                 <ul>
                     <li><a class="ui-btn-active ui-state-persist" href="#pageData">Data</a></li>
+                    <li><a href="#pageAnalytics">Analytics</a></li>
                     <li><a href="#pagePrivacy">Privacy & Security</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <div id="pageAnalytics" data-role="page">
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pageData">Data</a></li>
+                    <li><a class="ui-btn-active ui-state-persist" href="#pageAnalytics">Analytics</a></li>
+                    <li><a href="#pagePrivacy">Privacy & Security</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div id="pagePrivacy" data-role="page">
+
         <h1>Privacy & Security Policy</h1>
         <p>Food Diary Tracker built the Food Diary Tracker app as a open source app. This service is provided by Food Diary Tracker at no cost and is intended for use as is.</p>
         <p><strong>Information Collection and Use</strong></p>
@@ -128,16 +141,65 @@
             <div data-role="navbar">
                 <ul>
                     <li><a href="index.html">Data</a></li>
+                    <li><a href="analytics.html">Analytics</a></li>
                     <li><a class="ui-btn-active ui-state-persist" href="privacy.html">Privacy & Security</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.rawgit.com/remy/bind/928c52ce335d6fd2c824b536a97efa460554b9e0/dist/bind.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <script src="js/app.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
+
+    <script>
+        console.log('enter script on index');
+        $(document).bind('pageinit', function() {
+            console.log('pageinit event');
+            handleClientLoad();
+        });
+        /* global $ */
+
+
+        $('#buttonLogout').on('click', function() {
+            gapi.auth2.getAuthInstance().signOut().then(function() {
+                console.log('User signed out.');
+                $('#buttonLogin').show();
+                $('#buttonLogout').hide();
+            });
+        })
+
+        $('#buttonLogin').on('click', function() {
+            gapi.auth2.getAuthInstance().signIn().then(function() {
+                console.log('User signed in.');
+            });
+        })
+
+        $("#causeList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.food-diary').each(function(index, item) {
+                    $(item).addClass('food-diary');
+                    $(item).on('click', function() {
+                        $('#cause').val($(this).text());
+                    });
+                });
+            });
+        });
+
+        $("#effectList").on("filterablefilter", function(event, ui) {
+            ui.items.each(function(index, item) {
+                $(item).not('.food-diary').each(function(index, item) {
+                    $(item).addClass('food-diary');
+                    $(item).on('click', function() {
+                        $('#effect').val($(this).text());
+                    });
+                });
+            });
+        });
+    </script>
+
 
 </body>
 

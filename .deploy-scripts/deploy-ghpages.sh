@@ -8,7 +8,7 @@
 set -e
 
 PROD_CLIENT_ID="712538785806-7f6lggo668ua7skec0au0n9qmb1n8mrr.apps.googleusercontent.com"
-                
+
 # show where we are on the machine
 pwd
 remote=$(git config remote.origin.url)
@@ -39,7 +39,13 @@ cp -f ../*.html .
 cp -rf ../css .
 cp -rf ../js .
 cp -rf ../images .
-sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g" ../js/app.js > js/app.js
+
+cat ../js/app.js | \
+    sed -e "s~CLIENT_ID\s*=\s*'[^']*~CLIENT_ID = '${PROD_CLIENT_ID}~g"  \
+    > js/app.js
+cat ../css/main.css | \
+    sed -e "s~height: 9%;~height: 100%~g"  \
+    > css/main.css
 
 # stage any changes and new files
 git add -A
