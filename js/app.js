@@ -16,6 +16,123 @@ $(document).on("pageinit", "#pageData", function(event) {
 $(document).on("pageinit", "#pagePrivacy", function(event) {
     hideOverflow();
 });
+$(document).on("pageinit", "#pageAnalytics", function(event) {
+    showOverflow();
+    gapi.load('client:auth2', initAnalytics);
+});
+
+function initAnalytics() {
+    console.log('init analytics');
+    $('#overlay').html('Starting up!');
+    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
+
+    gapi.client.init({
+        'clientId': CLIENT_ID,
+        'scope': SCOPE,
+        'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+    }).then(function() {
+        findOrCreateDocId(createGraphs);
+    });
+
+}
+
+function createGraphs() {
+    hideOverflow();
+    var params = {
+        spreadsheetId: docId,
+        range: 'Data!A2:D',
+        majorDimension: 'ROWS'
+    };
+
+    var request = gapi.client.sheets.spreadsheets.values.get(params);
+    var causes = [];
+    var effects = [];
+    request.then(function(response) {
+        $('#graphs').append('<div>');
+        var values = response.result.values;
+        for (var i = 0; i < values.length; i++) {
+            var date = moment(values[i][3], 'YYYY-MM-DD hh:mm');
+            var title = values[i][1];
+            if (values[i][0].toLowerCase() === 'cause') {
+                causes.push({ 'title': title, 'date': date });
+            }
+            else {
+                effects.push({ 'title': title, 'date': date, 'severity': values[i][2] });
+            }
+        }
+        causes.sort(function(one, two) {
+            return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
+        });
+        effects.sort(function(one, two) {
+            return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
+        });
+
+        var correlations = {}
+        var timeframes = [{ time: 1, unit: 'hour' },
+            { time: 2, unit: 'hour' },
+            { time: 3, unit: 'hour' },
+            { time: 6, unit: 'hour' },
+            { time: 12, unit: 'hour' },
+            { time: 1, unit: 'day' }
+        ];
+        for (var i = 0; i < timeframes.length; i++) {
+            var timeKey = timeframes[i].unit + '_' + timeframes[i].time;
+            correlations[timeKey] = {};
+        }
+        for (var i = 0; i < causes.length; i++) {
+            console.log(causes[i].title);
+            var after = causes[i].date;
+            var befores = [];
+
+            for (var j = 0; j < timeframes.length; j++) {
+                befores.push(moment(after).add(timeframes[j].time, timeframes[j].unit));
+            }
+            for (var j = 0; j < effects.length; j++) {
+                if (effects[j].date.isAfter(after)) {
+                    for (var k = 0; k < befores.length; k++) {
+                        var before = befores[k];
+                        if (effects[j].date.isBefore(before)) {
+                            var timeKey = timeframes[k].unit + '_' + timeframes[k].time;
+                            var key = causes[i].title.toLowerCase().trim() + ' -> ' + effects[j].title.toLowerCase().trim();
+                            if (!correlations[timeKey][key]) {
+                                correlations[timeKey][key] = { key: key, counter: 1 }
+                            }
+                            else {
+                                correlations[timeKey][key].counter++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (var correlationKey in correlations) {
+            var correlation = correlations[correlationKey];
+            console.dir(correlation);
+            var cor = [];
+            for (var prop in correlation) {
+                cor.push(correlation[prop]);
+            }
+            cor.sort(function(one, two) {
+                return two.counter - one.counter;
+            })
+            console.dir(cor);
+            var text = '<h2>' + correlationKey + '</h2>';
+            for (var i = 0; i < 10 && i < cor.length; i++) {
+                text += '<div><b>' + cor[i].key + '</b><div>';
+                for (var j = 0; j < cor[i].counter; j++) {
+                    text += '<span class="counter-block"></span>';
+                }
+                text += '</div></div>';
+            }
+            $('#graphs').append(text);
+        }
+        $('#graphs').append('</div>');
+    }, function(reason) {
+        $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
+        console.error('error: ' + reason.result.error.message);
+    });
+
+}
 
 function iso(someDate) {
     var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
@@ -77,7 +194,7 @@ function pushGeo(data) {
     data.push(currentLocation.altitude ? currentLocation.altitude : 'unknown');
 }
 
-function findOrCreateDocId() {
+function findOrCreateDocId(callback) {
 
     $('#overlay').html('Searching for tracker sheet');
     gapi.client.drive.files.list({
@@ -92,7 +209,7 @@ function findOrCreateDocId() {
                 var file = files[i];
                 docId = file.id;
                 console.log('found: ' + docId);
-                getUniqueValues();
+                if (callback) { callback(); }
                 break;
             }
         }
@@ -186,6 +303,7 @@ function findOrCreateDocId() {
                             console.log('Inserted: ' + JSON.stringify(response.result));
                             $('#overlay').html('Inserted');
                             hideOverflow();
+                            if (callback) { callback(); }
                         }, function(reason) {
                             $('#overlay').html('Error: ' + reason.result.error.message);
                         });
@@ -228,7 +346,7 @@ function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         $('#buttonLogin').hide();
         $('#buttonLogout').show();
-        findOrCreateDocId();
+        findOrCreateDocId(getUniqueValues);
         getLocation();
     }
     else {

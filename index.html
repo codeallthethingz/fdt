@@ -9,6 +9,8 @@
 
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.js"></script>
+    <script src="js/levelgraph.min.js"></script>
 </head>
 
 <body>
@@ -95,11 +97,33 @@
             <div data-role="navbar">
                 <ul>
                     <li><a class="ui-btn-active ui-state-persist" href="#pageData">Data</a></li>
+                    <li><a href="#pageAnalytics">Analytics</a></li>
                     <li><a href="#pagePrivacy">Privacy & Security</a></li>
                 </ul>
             </div>
         </div>
     </div>
+
+    <div id="pageAnalytics" data-role="page">
+
+        <div data-role="header">
+            <h1><img src="images/favicon.png" height="15"> Food Diary <span class="version"></span></h1>
+        </div>
+
+        <div data-role="content" id="graphs">
+            analytics
+        </div>
+        <div data-role="footer" data-id="foo1" data-position="fixed">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pageData">Data</a></li>
+                    <li><a class="ui-btn-active ui-state-persist" href="#pageAnalytics">Analytics</a></li>
+                    <li><a href="#pagePrivacy">Privacy & Security</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 
     <div id="pagePrivacy" data-role="page">
 
@@ -134,8 +158,9 @@
         <div data-role="footer" data-id="foo1" data-position="fixed">
             <div data-role="navbar">
                 <ul>
-                    <li><a href="index.html">Data</a></li>
-                    <li><a class="ui-btn-active ui-state-persist" href="privacy.html">Privacy & Security</a></li>
+                    <li><a href="#pageData">Data</a></li>
+                    <li><a href="#pageAnalytics">Analytics</a></li>
+                    <li><a class="ui-btn-active ui-state-persist" href="#pagePrivacy">Privacy & Security</a></li>
                 </ul>
             </div>
         </div>
