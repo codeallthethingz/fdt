@@ -16,6 +16,47 @@ $(document).on("pageinit", "#pageData", function(event) {
 $(document).on("pageinit", "#pagePrivacy", function(event) {
     hideOverflow();
 });
+$(document).on("pageinit", "#pageAnalytics", function(event) {
+    showOverflow();
+    gapi.load('client:auth2', initAnalytics);
+});
+
+function initAnalytics() {
+    console.log('init analytics');
+    $('#overlay').html('Starting up!');
+    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
+
+    gapi.client.init({
+        'clientId': CLIENT_ID,
+        'scope': SCOPE,
+        'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+    }).then(function() {
+        findOrCreateDocId(createGraphs);
+    });
+
+}
+
+function createGraphs() {
+    hideOverflow();
+    var params = {
+        spreadsheetId: docId,
+        range: 'Data!A2:C',
+        majorDimension: 'ROWS'
+    };
+
+    var request = gapi.client.sheets.spreadsheets.values.get(params);
+    request.then(function(response) {
+        $('#graphs').append('<div>');
+        for (var i = 0; i < response.result.values.length; i++) {
+            $('#graphs').append(response.result.values[i]);
+        }
+        $('#graphs').append('</div>');
+    }, function(reason) {
+        $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
+        console.error('error: ' + reason.result.error.message);
+    });
+
+}
 
 function iso(someDate) {
     var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
@@ -77,7 +118,7 @@ function pushGeo(data) {
     data.push(currentLocation.altitude ? currentLocation.altitude : 'unknown');
 }
 
-function findOrCreateDocId() {
+function findOrCreateDocId(callback) {
 
     $('#overlay').html('Searching for tracker sheet');
     gapi.client.drive.files.list({
@@ -92,7 +133,7 @@ function findOrCreateDocId() {
                 var file = files[i];
                 docId = file.id;
                 console.log('found: ' + docId);
-                getUniqueValues();
+                if (callback) { callback(); }
                 break;
             }
         }
@@ -186,6 +227,7 @@ function findOrCreateDocId() {
                             console.log('Inserted: ' + JSON.stringify(response.result));
                             $('#overlay').html('Inserted');
                             hideOverflow();
+                            if (callback) { callback(); }
                         }, function(reason) {
                             $('#overlay').html('Error: ' + reason.result.error.message);
                         });
@@ -228,7 +270,7 @@ function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         $('#buttonLogin').hide();
         $('#buttonLogout').show();
-        findOrCreateDocId();
+        findOrCreateDocId(getUniqueValues);
         getLocation();
     }
     else {
