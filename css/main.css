@@ -41,6 +41,14 @@
     font-size: 32px;
 }
 
+.counter-block {
+    display: inline-block;
+    width: 5px;
+    height: 10px;
+    background-color: blue;
+    margin-right: 1px;
+}
+
 body {
     overflow: hidden;
 }
