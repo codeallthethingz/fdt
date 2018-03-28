@@ -89,3 +89,8 @@ body {
     font-size: 12px;
     text-shadow: none;
 }
+
+#graphs b {
+    font-size: 10px;
+    font-weight: normal;
+}

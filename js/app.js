@@ -38,98 +38,134 @@ function initAnalytics() {
 
 function createGraphs() {
     hideOverflow();
+
+
     var params = {
         spreadsheetId: docId,
-        range: 'Data!A2:D',
-        majorDimension: 'ROWS'
+        range: 'Analytics!A2:B',
+        majorDimension: 'COLUMNS'
     };
 
-    var request = gapi.client.sheets.spreadsheets.values.get(params);
-    var causes = [];
-    var effects = [];
-    request.then(function(response) {
-        $('#graphs').append('<div>');
-        var values = response.result.values;
-        for (var i = 0; i < values.length; i++) {
-            var date = moment(values[i][3], 'YYYY-MM-DD hh:mm');
-            var title = values[i][1];
-            if (values[i][0].toLowerCase() === 'cause') {
-                causes.push({ 'title': title, 'date': date });
-            }
-            else {
-                effects.push({ 'title': title, 'date': date, 'severity': values[i][2] });
-            }
+    gapi.client.sheets.spreadsheets.values.get(params).then(function(analyticsResponse) {
+        var whitelist = [];
+        var splits = [];
+        if (analyticsResponse.result.values.length > 0) {
+            whitelist = analyticsResponse.result.values[0];
         }
-        causes.sort(function(one, two) {
-            return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
-        });
-        effects.sort(function(one, two) {
-            return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
+        if (analyticsResponse.result.values.length > 1) {
+            splits = analyticsResponse.result.values[1];
+            splits = '\\b' + splits.join('\\b|\\b') + '\\b';
+        }
+
+        whitelist.sort(function(one, two) {
+            return two.length - one.length;
         });
 
-        var correlations = {}
-        var timeframes = [{ time: 1, unit: 'hour' },
-            { time: 2, unit: 'hour' },
-            { time: 3, unit: 'hour' },
-            { time: 6, unit: 'hour' },
-            { time: 12, unit: 'hour' },
-            { time: 1, unit: 'day' }
-        ];
-        for (var i = 0; i < timeframes.length; i++) {
-            var timeKey = timeframes[i].unit + '_' + timeframes[i].time;
-            correlations[timeKey] = {};
-        }
-        for (var i = 0; i < causes.length; i++) {
-            console.log(causes[i].title);
-            var after = causes[i].date;
-            var befores = [];
+        var params = {
+            spreadsheetId: docId,
+            range: 'Data!A2:D',
+            majorDimension: 'ROWS'
+        };
 
-            for (var j = 0; j < timeframes.length; j++) {
-                befores.push(moment(after).add(timeframes[j].time, timeframes[j].unit));
+        var request = gapi.client.sheets.spreadsheets.values.get(params);
+        var causes = [];
+        var effects = [];
+        request.then(function(response) {
+            $('#graphs').append('<div>');
+            var values = response.result.values;
+            for (var i = 0; i < values.length; i++) {
+                var date = moment(values[i][3], 'YYYY-MM-DD hh:mm');
+                var title = values[i][1];
+                for (var j = 0; j < whitelist.length; j++) {
+                    if (title.indexOf(whitelist[j]) !== -1) {
+                        title = title.replace(whitelist[j], "").trim();
+                    }
+                }
+
+
+                if (values[i][0].toLowerCase() === 'effect') {
+                    effects.push({ 'title': title, 'date': date, 'severity': values[i][2] });
+                }
+                else {
+                    var titles = title.split(new RegExp(splits));
+
+                    for (var j = 0; j < titles.length; j++) {
+                        var title = titles[j];
+                        causes.push({ 'title': title.trim(), 'date': date });
+                    }
+                }
             }
-            for (var j = 0; j < effects.length; j++) {
-                if (effects[j].date.isAfter(after)) {
-                    for (var k = 0; k < befores.length; k++) {
-                        var before = befores[k];
-                        if (effects[j].date.isBefore(before)) {
-                            var timeKey = timeframes[k].unit + '_' + timeframes[k].time;
-                            var key = causes[i].title.toLowerCase().trim() + ' -> ' + effects[j].title.toLowerCase().trim();
-                            if (!correlations[timeKey][key]) {
-                                correlations[timeKey][key] = { key: key, counter: 1 }
-                            }
-                            else {
-                                correlations[timeKey][key].counter++;
+            causes.sort(function(one, two) {
+                return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
+            });
+            effects.sort(function(one, two) {
+                return one.date < two.date ? -1 : one.date > two.date ? 1 : 0;
+            });
+
+            var correlations = {}
+            var timeframes = [
+                { time: 35, unit: 'minutes' },
+                { time: 1, unit: 'hour' },
+                { time: 2, unit: 'hour' },
+                { time: 3, unit: 'hour' },
+                { time: 6, unit: 'hour' },
+                { time: 12, unit: 'hour' },
+                { time: 1, unit: 'day' }
+            ];
+            for (var i = 0; i < timeframes.length; i++) {
+                var timeKey = timeframes[i].unit + '_' + timeframes[i].time;
+                correlations[timeKey] = {};
+            }
+            for (var i = 0; i < causes.length; i++) {
+                var after = causes[i].date;
+                var befores = [];
+
+                for (var j = 0; j < timeframes.length; j++) {
+                    befores.push(moment(after).add(timeframes[j].time, timeframes[j].unit));
+                }
+                for (var j = 0; j < effects.length; j++) {
+                    if (effects[j].date.isAfter(after)) {
+                        for (var k = 0; k < befores.length; k++) {
+                            var before = befores[k];
+                            if (effects[j].date.isBefore(before)) {
+                                var timeKey = timeframes[k].unit + '_' + timeframes[k].time;
+                                var key = causes[i].title.toLowerCase().trim() + ' -> ' + effects[j].title.toLowerCase().trim();
+                                if (!correlations[timeKey][key]) {
+                                    correlations[timeKey][key] = { key: key, counter: 1 }
+                                }
+                                else {
+                                    correlations[timeKey][key].counter++;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        for (var correlationKey in correlations) {
-            var correlation = correlations[correlationKey];
-            console.dir(correlation);
-            var cor = [];
-            for (var prop in correlation) {
-                cor.push(correlation[prop]);
-            }
-            cor.sort(function(one, two) {
-                return two.counter - one.counter;
-            })
-            console.dir(cor);
-            var text = '<h2>' + correlationKey + '</h2>';
-            for (var i = 0; i < 10 && i < cor.length; i++) {
-                text += '<div><b>' + cor[i].key + '</b><div>';
-                for (var j = 0; j < cor[i].counter; j++) {
-                    text += '<span class="counter-block"></span>';
+            for (var correlationKey in correlations) {
+                var correlation = correlations[correlationKey];
+                var cor = [];
+                for (var prop in correlation) {
+                    cor.push(correlation[prop]);
                 }
-                text += '</div></div>';
+                cor.sort(function(one, two) {
+                    return two.counter - one.counter;
+                })
+                var text = '<h2>' + correlationKey + '</h2>';
+                for (var i = 0; i < 20 && i < cor.length; i++) {
+                    text += '<div><b>' + cor[i].key + '</b><div>';
+                    for (var j = 0; j < cor[i].counter; j++) {
+                        text += '<span class="counter-block"></span>';
+                    }
+                    text += '</div></div>';
+                }
+                $('#graphs').append(text);
             }
-            $('#graphs').append(text);
-        }
-        $('#graphs').append('</div>');
-    }, function(reason) {
-        $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
-        console.error('error: ' + reason.result.error.message);
+            $('#graphs').append('</div>');
+        }, function(reason) {
+            $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
+            console.error('error: ' + reason.result.error.message);
+        });
+
     });
 
 }
@@ -245,6 +281,21 @@ function findOrCreateDocId(callback) {
                                 "blue": 0.1
                             }
                         }
+                    },
+                    {
+                        "properties": {
+                            "title": "Analytics",
+                            "gridProperties": {
+                                "rowCount": 10000,
+                                "columnCount": 50,
+                                "frozenRowCount": 1
+                            },
+                            "tabColor": {
+                                "red": 0.1,
+                                "green": 0.1,
+                                "blue": 0.7
+                            }
+                        }
                     }
                 ]
             }).then(function(response) {
@@ -307,6 +358,29 @@ function findOrCreateDocId(callback) {
                         }, function(reason) {
                             $('#overlay').html('Error: ' + reason.result.error.message);
                         });
+
+                        var params = {
+                            spreadsheetId: docId,
+                            range: 'Analytics!A1:Z1',
+                            valueInputOption: 'USER_ENTERED'
+                        };
+                        var valueRangeBody = {
+                            'range': 'Unique!A1:Z1',
+                            'majorDimension': 'ROWS',
+                            'values': [
+                                ['Whitelist', 'Splits']
+                            ],
+                        }
+
+                        gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(function(response) {
+                            console.log('Inserted: ' + JSON.stringify(response.result));
+                            $('#overlay').html('Inserted');
+                        }, function(reason) {
+                            $('#overlay').html('Error: ' + reason.result.error.message);
+                        });
+
+
+
                     });
                 },
                 function(reason) {
