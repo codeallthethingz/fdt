@@ -425,6 +425,7 @@ function updateSignInStatus(isSignedIn) {
     }
     else {
         showOverflow();
+        handleSignInClick();
     }
 }
 
