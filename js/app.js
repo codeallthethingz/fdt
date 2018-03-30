@@ -54,7 +54,7 @@ function createGraphs() {
         }
         if (analyticsResponse.result.values.length > 1) {
             splits = analyticsResponse.result.values[1];
-            splits = '\\b' + splits.join('\\b|\\b') + '\\b';
+            splits = '\\s+' + splits.join('\\s+|\\s+') + '\\s+';
         }
 
         whitelist.sort(function(one, two) {
@@ -424,7 +424,7 @@ function updateSignInStatus(isSignedIn) {
         getLocation();
     }
     else {
-        showOverlay();
+        showOverflow();
     }
 }
 
