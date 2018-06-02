@@ -7,7 +7,7 @@ var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
 var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
-$('.version').html('0.0.13');
+$('.version').html('0.0.14');
 
 $(document).on("pageinit", "#pageData", function(event) {
     showOverflow();
@@ -420,6 +420,7 @@ function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         $('#buttonLogin').hide();
         $('#buttonLogout').show();
+        $('#buttonLogout').html('Logout ' + gapi.auth2.getAuthInstance().currentUser.Ab.w3.ofa);
         findOrCreateDocId(getUniqueValues);
         getLocation();
     }
