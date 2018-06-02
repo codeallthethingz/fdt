@@ -7,7 +7,7 @@ var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
 var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
-$('.version').html('0.0.12');
+$('.version').html('0.0.13');
 
 $(document).on("pageinit", "#pageData", function(event) {
     showOverflow();
@@ -447,7 +447,7 @@ function getUniqueValues() {
                     htmlCause += "<li>" + cause.trim().toLowerCase() + "</li>";
                 }
             }
-            resetAutocompleteData('cause', htmlCause);
+            createAutocompleteData('cause', htmlCause);
         }
         if (response.result.values && response.result.values[1]) {
             var effects = response.result.values[1];
@@ -457,7 +457,7 @@ function getUniqueValues() {
                     htmlEffect += "<li>" + effect.trim().toLowerCase() + "</li>";
                 }
             }
-            resetAutocompleteData('effect', htmlEffect);
+            createAutocompleteData('effect', htmlEffect);
         }
         hideOverflow();
     }, function(reason) {
@@ -469,15 +469,14 @@ function getUniqueValues() {
 function addItemToAutocomplete(eventType, data) {
     var existing = $('#' + eventType + 'List').html();
     if (existing.indexOf('>' + data.trim().toLowerCase() + '<') === -1) {
-        existing += '<li>' + data.trim().toLowerCase() + '</li>';
-        resetAutocompleteData(eventType, existing)
+        $('#' + eventType + 'List').append('<li>' + data.trim().toLowerCase() + '</li>');
+        $('#' + eventType + 'List').listview("refresh");
     }
 }
 
-function resetAutocompleteData(eventType, existing) {
+function createAutocompleteData(eventType, existing) {
     $('#' + eventType + 'List').html(existing);
     $('#' + eventType + 'List').listview("refresh");
-    $('#' + eventType + 'List').trigger("updatelayout");
     $('#' + eventType + 'List').on('click', function() {
         $(this).children('li').addClass('ui-screen-hidden');
     })
