@@ -16,7 +16,7 @@
     <div id="overlay"></div>
     <div id="pageData" data-role="page">
         <div data-role="header">
-            <h1><img src="images/favicon.png" height="15"> Food Diary <span id="version" class="version"></span> <span id="linkToSheet" class="version">doc: <a href=""></a></span></h1>
+            <h1><img src="images/favicon.png" height="15"> Food Diary <span id="version" class="version"></span></h1>
             <button data-role="button" id="buttonLogout" data-icon="false" data-iconpos="false" class="ui-btn-right">logout</button>
         </div>
 
@@ -93,7 +93,9 @@
                 <input id="saveEffectButton" type="button" data-icon="cloud" value="Save Effect into the Cloud">
             </form>
         </div>
+        <div id="linkToSheet" class="version">doc: <a href=""></a></div>
         <div data-role="footer" data-id="foo1" data-position="fixed">
+
             <div data-role="navbar">
                 <ul>
                     <li><a class="ui-btn-active ui-state-persist" href="#pageData">Data</a></li>
@@ -165,7 +167,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="js/app.js"></script>
