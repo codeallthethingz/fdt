@@ -6,8 +6,9 @@ var CLIENT_ID = '712538785806-t2k038d94gamrfgn5e1k1hvncirn59qo.apps.googleuserco
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var MINUTE_INCREMENT = 30 * 60 * 1000;
+var email;
 var currentLocation = { 'latitude': 'unknown', 'longitude': 'unknown', 'altitude': 'unknown' };
-$('.version').html('0.0.14');
+$('#version').html('0.0.15');
 
 $(document).on("pageinit", "#pageData", function(event) {
     showOverflow();
@@ -245,6 +246,7 @@ function findOrCreateDocId(callback) {
                 var file = files[i];
                 docId = file.id;
                 console.log('found: ' + docId);
+                $('#linkToSheet a').html(email + ' ' + docId.substring(docId.length - 4, docId.length)).attr('href', 'https://docs.google.com/spreadsheets/d/' + docId).attr('target', '_blank').attr('title', docId);
                 if (callback) { callback(); }
                 break;
             }
@@ -409,6 +411,7 @@ function initClient() {
         'scope': SCOPE,
         'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
     }).then(function() {
+        email = gapi.auth2.getAuthInstance()['currentUser']['Ab']['w3']['U3'];
         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
         updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         setupUi();
