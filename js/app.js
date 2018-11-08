@@ -411,7 +411,6 @@ function initClient() {
         'scope': SCOPE,
         'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
     }).then(function() {
-        email = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
         updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
         setupUi();
@@ -421,9 +420,11 @@ function initClient() {
 
 function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
+
+        email = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
         $('#buttonLogin').hide();
         $('#buttonLogout').show();
-        $('#buttonLogout').html('Logout ' + gapi.auth2.getAuthInstance().currentUser.Ab.w3.ofa);
+        $('#buttonLogout').html('Logout ' + gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getGivenName());
         findOrCreateDocId(getUniqueValues);
         getLocation();
     }
