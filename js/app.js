@@ -559,6 +559,7 @@ function setupUi() {
     $('#buttonLogout').on('click', function() {
         gapi.auth2.getAuthInstance().signOut().then(function() {
             console.log('User signed out.');
+            gapi.auth2.getAuthInstance().disconnect();
             $('#buttonLogin').show();
             $('#buttonLogout').hide();
         });
