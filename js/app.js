@@ -21,12 +21,19 @@ $(document).on("pageinit", "#pageAnalytics", function(event) {
     showOverflow();
     gapi.load('client:auth2', initAnalytics);
 });
+$(document).on("pagebeforeshow", "#pageAnalytics", initAnalytics);
 $(document).on("pageinit", "#pageRecent", function(event) {
     showOverflow();
     gapi.load('client:auth2', initRecent);
 });
+$(document).on("pagebeforeshow", "#pageRecent", initRecent);
+
 
 function initRecent() {
+    if (!gapi.client) {
+        return;
+    }
+    $('#recentContent').html('Loading...');
     console.log('init recent');
     $('#overlay').html('Starting up!');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
@@ -88,6 +95,10 @@ function createRecent() {
 }
 
 function initAnalytics() {
+    if (!gapi.client) {
+        return;
+    }
+    $('#graphs').html('Loading...');
     console.log('init analytics');
     $('#overlay').html('Starting up!');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
@@ -105,7 +116,7 @@ function initAnalytics() {
 function createGraphs() {
     hideOverflow();
 
-
+    $('#graphs').html('Loading...');
     var params = {
         spreadsheetId: docId,
         range: 'Analytics!A2:B',
@@ -115,6 +126,7 @@ function createGraphs() {
     gapi.client.sheets.spreadsheets.values.get(params).then(function(analyticsResponse) {
         var whitelist = [];
         var splits = [];
+        var output = '';
         if (analyticsResponse.result.values.length > 0) {
             whitelist = analyticsResponse.result.values[0];
         }
@@ -137,7 +149,7 @@ function createGraphs() {
         var causes = [];
         var effects = [];
         request.then(function(response) {
-            $('#graphs').append('<div>');
+            output += '<div>';
             var values = response.result.values;
             for (var i = 0; i < values.length; i++) {
                 var date = moment(values[i][3], 'YYYY-MM-DD hh:mm');
@@ -216,7 +228,7 @@ function createGraphs() {
                 cor.sort(function(one, two) {
                     return two.counter - one.counter;
                 })
-                var text = '<h2>' + correlationKey + '</h2>';
+                var text = '<h3>' + correlationKey + '</h3>';
                 for (var i = 0; i < 20 && i < cor.length; i++) {
                     text += '<div><b>' + cor[i].key + '</b><div>';
                     for (var j = 0; j < cor[i].counter; j++) {
@@ -224,9 +236,10 @@ function createGraphs() {
                     }
                     text += '</div></div>';
                 }
-                $('#graphs').append(text);
+                output += text;
             }
-            $('#graphs').append('</div>');
+            output += '</div>';
+            $('#graphs').html(output);
         }, function(reason) {
             $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
             console.error('error: ' + reason.result.error.message);
