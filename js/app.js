@@ -21,6 +21,71 @@ $(document).on("pageinit", "#pageAnalytics", function(event) {
     showOverflow();
     gapi.load('client:auth2', initAnalytics);
 });
+$(document).on("pageinit", "#pageRecent", function(event) {
+    showOverflow();
+    gapi.load('client:auth2', initRecent);
+});
+
+function initRecent() {
+    console.log('init recent');
+    $('#overlay').html('Starting up!');
+    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
+
+    gapi.client.init({
+        'clientId': CLIENT_ID,
+        'scope': SCOPE,
+        'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+    }).then(function() {
+        findOrCreateDocId(createRecent);
+    });
+}
+
+
+function createRecent() {
+    hideOverflow();
+
+    var params = {
+        spreadsheetId: docId,
+        range: 'Data!A2:D',
+        majorDimension: 'ROWS'
+    };
+
+    gapi.client.sheets.spreadsheets.values.get(params).then(function(recentResponse) {
+
+        var today = [];
+
+        var currentDate = moment().format('YYYY-MM-DD')
+        if (recentResponse.result.values.length == 0) {
+            $('#recentContent').html('No entries for today');
+            return;
+        }
+
+
+        var values = recentResponse.result.values;
+        for (var i = 0; i < values.length; i++) {
+            if (values[i][3].startsWith(currentDate)) {
+                today.push(values[i]);
+            }
+        }
+
+        if (today.length == 0) {
+            $('#recentContent').html('No entries for today');
+            return;
+        }
+
+        today.sort(function(one, two) {
+            return one[3] < two[3] ? -1 : one[3] > two[3] ? 1 : 0;
+        })
+
+        var output = '<ul>';
+        for (var i = 0; i < today.length; i++) {
+            output += '<li>' + today[i][3].substring(11) + ' ' + today[i][1] + '</li>';
+        }
+        output += '</ul>';
+        $('#recentContent').html(output);
+    });
+
+}
 
 function initAnalytics() {
     console.log('init analytics');
@@ -172,10 +237,8 @@ function createGraphs() {
 }
 
 function iso(someDate) {
-    var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
-    var hour = (someDate.getHours() < 10 ? '0' : '') + someDate.getHours();
-    var minute = (someDate.getMinutes() < 10 ? '0' : '') + someDate.getMinutes();
-    return (1900 + someDate.getYear()) + '-' + month + '-' + someDate.getDate() + ' ' + hour + ':' + minute;
+    var value = moment(someDate).format('YYYY-MM-DD hh:mm');
+    return value;
 }
 
 
