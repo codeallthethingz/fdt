@@ -21,8 +21,84 @@ $(document).on("pageinit", "#pageAnalytics", function(event) {
     showOverflow();
     gapi.load('client:auth2', initAnalytics);
 });
+$(document).on("pagebeforeshow", "#pageAnalytics", initAnalytics);
+$(document).on("pageinit", "#pageRecent", function(event) {
+    showOverflow();
+    gapi.load('client:auth2', initRecent);
+});
+$(document).on("pagebeforeshow", "#pageRecent", initRecent);
+
+
+function initRecent() {
+    if (!gapi.client) {
+        return;
+    }
+    $('#recentContent').html('Loading...');
+    console.log('init recent');
+    $('#overlay').html('Starting up!');
+    var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
+
+    gapi.client.init({
+        'clientId': CLIENT_ID,
+        'scope': SCOPE,
+        'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4', "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+    }).then(function() {
+        findOrCreateDocId(createRecent);
+    });
+}
+
+
+function createRecent() {
+    hideOverflow();
+
+    var params = {
+        spreadsheetId: docId,
+        range: 'Data!A2:D',
+        majorDimension: 'ROWS'
+    };
+
+    gapi.client.sheets.spreadsheets.values.get(params).then(function(recentResponse) {
+
+        var today = [];
+
+        var currentDate = moment().format('YYYY-MM-DD')
+        if (recentResponse.result.values.length == 0) {
+            $('#recentContent').html('No entries for today');
+            return;
+        }
+
+
+        var values = recentResponse.result.values;
+        for (var i = 0; i < values.length; i++) {
+            if (values[i][3].startsWith(currentDate)) {
+                today.push(values[i]);
+            }
+        }
+
+        if (today.length == 0) {
+            $('#recentContent').html('No entries for today');
+            return;
+        }
+
+        today.sort(function(one, two) {
+            return one[3] < two[3] ? -1 : one[3] > two[3] ? 1 : 0;
+        })
+
+        var output = '<ul>';
+        for (var i = 0; i < today.length; i++) {
+            output += '<li>' + today[i][3].substring(11) + ' ' + today[i][1] + '</li>';
+        }
+        output += '</ul>';
+        $('#recentContent').html(output);
+    });
+
+}
 
 function initAnalytics() {
+    if (!gapi.client) {
+        return;
+    }
+    $('#graphs').html('Loading...');
     console.log('init analytics');
     $('#overlay').html('Starting up!');
     var SCOPE = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive';
@@ -40,7 +116,7 @@ function initAnalytics() {
 function createGraphs() {
     hideOverflow();
 
-
+    $('#graphs').html('Loading...');
     var params = {
         spreadsheetId: docId,
         range: 'Analytics!A2:B',
@@ -50,6 +126,7 @@ function createGraphs() {
     gapi.client.sheets.spreadsheets.values.get(params).then(function(analyticsResponse) {
         var whitelist = [];
         var splits = [];
+        var output = '';
         if (analyticsResponse.result.values.length > 0) {
             whitelist = analyticsResponse.result.values[0];
         }
@@ -72,7 +149,7 @@ function createGraphs() {
         var causes = [];
         var effects = [];
         request.then(function(response) {
-            $('#graphs').append('<div>');
+            output += '<div>';
             var values = response.result.values;
             for (var i = 0; i < values.length; i++) {
                 var date = moment(values[i][3], 'YYYY-MM-DD hh:mm');
@@ -151,7 +228,7 @@ function createGraphs() {
                 cor.sort(function(one, two) {
                     return two.counter - one.counter;
                 })
-                var text = '<h2>' + correlationKey + '</h2>';
+                var text = '<h3>' + correlationKey + '</h3>';
                 for (var i = 0; i < 20 && i < cor.length; i++) {
                     text += '<div><b>' + cor[i].key + '</b><div>';
                     for (var j = 0; j < cor[i].counter; j++) {
@@ -159,9 +236,10 @@ function createGraphs() {
                     }
                     text += '</div></div>';
                 }
-                $('#graphs').append(text);
+                output += text;
             }
-            $('#graphs').append('</div>');
+            output += '</div>';
+            $('#graphs').html(output);
         }, function(reason) {
             $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
             console.error('error: ' + reason.result.error.message);
@@ -172,10 +250,8 @@ function createGraphs() {
 }
 
 function iso(someDate) {
-    var month = ((someDate.getMonth() + 1) < 10 ? '0' : '') + (someDate.getMonth() + 1)
-    var hour = (someDate.getHours() < 10 ? '0' : '') + someDate.getHours();
-    var minute = (someDate.getMinutes() < 10 ? '0' : '') + someDate.getMinutes();
-    return (1900 + someDate.getYear()) + '-' + month + '-' + someDate.getDate() + ' ' + hour + ':' + minute;
+    var value = moment(someDate).format('YYYY-MM-DD hh:mm');
+    return value;
 }
 
 
