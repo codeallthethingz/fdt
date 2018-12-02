@@ -145,7 +145,6 @@ function createGraphs(filterText) {
         else {
             splits = null;
         }
-        console.log(splits);
         whitelist.sort(function(one, two) {
             return two.length - one.length;
         });
