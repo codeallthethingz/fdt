@@ -118,6 +118,26 @@ function initAnalytics() {
     });
 
 }
+var POSITIVE = 1;
+var NEGATIVE = 2;
+
+function parseFilters(filterText) {
+    if (!filterText) {
+        return [];
+    }
+    var tokens = filterText.trim().split(/\s+/);
+    var filters = [];
+    for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i].trim().toLowerCase();
+        if (token.startsWith('-')) {
+            filters.push({ token: token.substring(1), type: NEGATIVE });
+        }
+        else {
+            filters.push({ token: token, type: POSITIVE });
+        }
+    }
+    return filters;
+}
 
 function createGraphs(filterText) {
     hideOverflow();
@@ -128,6 +148,7 @@ function createGraphs(filterText) {
         majorDimension: 'COLUMNS'
     };
     filterText = filterText ? filterText.toLowerCase() : filterText;
+    var filters = parseFilters(filterText);
 
     gapi.client.sheets.spreadsheets.values.get(params).then(function(analyticsResponse) {
         var whitelist = [];
@@ -149,7 +170,6 @@ function createGraphs(filterText) {
         whitelist.sort(function(one, two) {
             return two.length - one.length;
         });
-        console.log(splits);
         var params = {
             spreadsheetId: docId,
             range: 'Data!A2:D',
@@ -241,7 +261,7 @@ function createGraphs(filterText) {
                 })
                 var text = '<h3>' + correlationKey + '</h3><div class="analyticsGraph">';
                 for (var i = 0; i < 2000 && i < cor.length; i++) {
-                    if (!filterText || cor[i].key.includes(filterText)) {
+                    if (matchesFilter(filters, cor[i].key)) {
                         text += '<div><b>' + cor[i].key + '</b><div>';
                         for (var j = 0; j < cor[i].counter; j++) {
                             text += '<span class="counter-block"></span>';
@@ -259,6 +279,23 @@ function createGraphs(filterText) {
             console.error('error: ' + reason.result.error.message);
         });
     });
+}
+
+function matchesFilter(filters, haystack) {
+    if (filters.length == 0) {
+        return true;
+    }
+    for (var i = 0; i < filters.length; i++) {
+        if (haystack.includes(filters[i].token) && filters[i].type == NEGATIVE) {
+            return false;
+        }
+    }
+    for (var i = 0; i < filters.length; i++) {
+        if (haystack.includes(filters[i].token) && filters[i].type == POSITIVE) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function iso(someDate) {
