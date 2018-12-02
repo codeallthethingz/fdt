@@ -103,3 +103,10 @@ body {
     font-size: 10px;
     font-weight: normal;
 }
+
+.analyticsGraph {
+    max-height: 150px;
+    overflow: auto;
+    background-color: #EFEFEF;
+    padding: 4px;
+}
