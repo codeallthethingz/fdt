@@ -127,6 +127,7 @@ function createGraphs(filterText) {
         range: 'Analytics!A2:B',
         majorDimension: 'COLUMNS'
     };
+    filterText = filterText ? filterText.toLowerCase() : filterText;
 
     gapi.client.sheets.spreadsheets.values.get(params).then(function(analyticsResponse) {
         var whitelist = [];
@@ -139,7 +140,7 @@ function createGraphs(filterText) {
 
             if (analyticsResponse.result.values.length > 1) {
                 splits = analyticsResponse.result.values[1];
-                splits = '\\s+' + splits.join('\\s+|\\s+') + '\\s+';
+                splits = splits.join('|');
             }
         }
         else {
@@ -148,7 +149,7 @@ function createGraphs(filterText) {
         whitelist.sort(function(one, two) {
             return two.length - one.length;
         });
-
+        console.log(splits);
         var params = {
             spreadsheetId: docId,
             range: 'Data!A2:D',
@@ -239,7 +240,7 @@ function createGraphs(filterText) {
                     return two.counter - one.counter;
                 })
                 var text = '<h3>' + correlationKey + '</h3>';
-                for (var i = 0; i < 20 && i < cor.length; i++) {
+                for (var i = 0; i < 2000 && i < cor.length; i++) {
                     if (!filterText || cor[i].key.includes(filterText)) {
                         text += '<div><b>' + cor[i].key + '</b><div>';
                         for (var j = 0; j < cor[i].counter; j++) {
@@ -256,9 +257,7 @@ function createGraphs(filterText) {
             $('#overlay').html('error loading autocomplete from spreadsheet: ' + reason.result.error.message);
             console.error('error: ' + reason.result.error.message);
         });
-
     });
-
 }
 
 function iso(someDate) {
