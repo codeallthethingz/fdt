@@ -127,8 +127,32 @@ function parseFilters(filterText) {
     }
     var tokens = filterText.trim().split(/\s+/);
     var filters = [];
+    var phraseToken = '';
+    var phraseTokenType = null;
     for (var i = 0; i < tokens.length; i++) {
         var token = tokens[i].trim().toLowerCase();
+        if (phraseTokenType != null || token.startsWith('"') || token.startsWith('-"') || token.endsWith('"')) {
+            if (token.startsWith('"')) {
+                phraseToken += token.substr(1);
+                phraseTokenType = POSITIVE;
+                continue;
+            }
+            else if (token.startsWith('-"')) {
+                phraseToken += token.substring(2);
+                phraseTokenType = NEGATIVE;
+                continue;
+            }
+            else if (token.endsWith('"')) {
+                phraseToken = phraseToken + ' ' + token.substr(0, token.length - 1);
+                token = (phraseTokenType == NEGATIVE ? '-' : '') + phraseToken;
+                phraseToken = '';
+                phraseTokenType = null;
+            }
+            else {
+                phraseToken += ' ' + token;
+                continue;
+            }
+        }
         if (token.startsWith('-')) {
             filters.push({ token: token.substring(1), type: NEGATIVE });
         }
@@ -291,11 +315,11 @@ function matchesFilter(filters, haystack) {
         }
     }
     for (var i = 0; i < filters.length; i++) {
-        if (haystack.includes(filters[i].token) && filters[i].type == POSITIVE) {
-            return true;
+        if (!haystack.includes(filters[i].token) && filters[i].type == POSITIVE) {
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 function iso(someDate) {
