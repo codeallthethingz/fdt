@@ -19,6 +19,7 @@ $(document).on("pageinit", "#pagePrivacy", function(event) {
 });
 $(document).on("pageinit", "#pageAnalytics", function(event) {
     showOverflow();
+    setupUiAnalytics();
     gapi.load('client:auth2', initAnalytics);
 });
 $(document).on("pagebeforeshow", "#pageAnalytics", initAnalytics);
@@ -28,6 +29,11 @@ $(document).on("pageinit", "#pageRecent", function(event) {
 });
 $(document).on("pagebeforeshow", "#pageRecent", initRecent);
 
+function setupUiAnalytics() {
+    $('#filterTextButton').on('click', function() {
+        createGraphs($('#filterText').val());
+    });
+}
 
 function initRecent() {
     if (!gapi.client) {
@@ -113,9 +119,8 @@ function initAnalytics() {
 
 }
 
-function createGraphs() {
+function createGraphs(filterText) {
     hideOverflow();
-
     $('#graphs').html('Loading...');
     var params = {
         spreadsheetId: docId,
@@ -127,14 +132,20 @@ function createGraphs() {
         var whitelist = [];
         var splits = [];
         var output = '';
-        if (analyticsResponse.result.values.length > 0) {
-            whitelist = analyticsResponse.result.values[0];
-        }
-        if (analyticsResponse.result.values.length > 1) {
-            splits = analyticsResponse.result.values[1];
-            splits = '\\s+' + splits.join('\\s+|\\s+') + '\\s+';
-        }
+        if (analyticsResponse.result.values) {
+            if (analyticsResponse.result.values.length > 0) {
+                whitelist = analyticsResponse.result.values[0];
+            }
 
+            if (analyticsResponse.result.values.length > 1) {
+                splits = analyticsResponse.result.values[1];
+                splits = '\\s+' + splits.join('\\s+|\\s+') + '\\s+';
+            }
+        }
+        else {
+            splits = null;
+        }
+        console.log(splits);
         whitelist.sort(function(one, two) {
             return two.length - one.length;
         });
@@ -165,7 +176,7 @@ function createGraphs() {
                     effects.push({ 'title': title, 'date': date, 'severity': values[i][2] });
                 }
                 else {
-                    var titles = title.split(new RegExp(splits));
+                    var titles = splits ? title.split(new RegExp(splits)) : [title];
 
                     for (var j = 0; j < titles.length; j++) {
                         var title = titles[j];
@@ -230,11 +241,13 @@ function createGraphs() {
                 })
                 var text = '<h3>' + correlationKey + '</h3>';
                 for (var i = 0; i < 20 && i < cor.length; i++) {
-                    text += '<div><b>' + cor[i].key + '</b><div>';
-                    for (var j = 0; j < cor[i].counter; j++) {
-                        text += '<span class="counter-block"></span>';
+                    if (!filterText || cor[i].key.includes(filterText)) {
+                        text += '<div><b>' + cor[i].key + '</b><div>';
+                        for (var j = 0; j < cor[i].counter; j++) {
+                            text += '<span class="counter-block"></span>';
+                        }
+                        text += '</div></div>';
                     }
-                    text += '</div></div>';
                 }
                 output += text;
             }
@@ -250,7 +263,7 @@ function createGraphs() {
 }
 
 function iso(someDate) {
-    var value = moment(someDate).format('YYYY-MM-DD hh:mm');
+    var value = moment(someDate).format('YYYY-MM-DD HH:mm');
     return value;
 }
 
