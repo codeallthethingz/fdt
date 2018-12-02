@@ -239,7 +239,7 @@ function createGraphs(filterText) {
                 cor.sort(function(one, two) {
                     return two.counter - one.counter;
                 })
-                var text = '<h3>' + correlationKey + '</h3>';
+                var text = '<h3>' + correlationKey + '</h3><div class="analyticsGraph">';
                 for (var i = 0; i < 2000 && i < cor.length; i++) {
                     if (!filterText || cor[i].key.includes(filterText)) {
                         text += '<div><b>' + cor[i].key + '</b><div>';
@@ -249,6 +249,7 @@ function createGraphs(filterText) {
                         text += '</div></div>';
                     }
                 }
+                text += '</div>';
                 output += text;
             }
             output += '</div>';
