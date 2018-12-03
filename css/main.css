@@ -110,3 +110,13 @@ body {
     background-color: #EFEFEF;
     padding: 4px;
 }
+
+.ui-page {
+    opacity: 0.95;
+}
+
+body {
+    background-image: url('../images/panda.jpg');
+    background-repeat: none;
+    background-size: auto;
+}
