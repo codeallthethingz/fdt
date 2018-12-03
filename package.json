@@ -4,7 +4,7 @@
   "description": "Food Diary Tracker === [![CircleCI](https://circleci.com/gh/codeallthethingz/food-diary-tracker.svg?style=svg)](https://circleci.com/gh/trackallthethingz/food-diary-tracker)",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "node node_modules/jest/bin/jest.js"
   },
   "repository": {
     "type": "git",
