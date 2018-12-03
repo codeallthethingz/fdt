@@ -36,6 +36,10 @@ jobs:
       - store_artifacts:
           path: test-results
 
+      - run:
+          name: GH Pages Deploy
+          command: ./.deploy-scripts/deploy-ghpages.sh
+
 workflows:
   version: 2
   node:
