@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  flob:
+  build-and-test:
     working_directory: ~/food-diary-tracker
     docker:
       - image: circleci/node:8
@@ -36,12 +36,18 @@ jobs:
       - store_artifacts:
           path: test-results
 
+  deploy-to-ghpages:
+    working_directory: ~/food-diary-tracker
+    docker:
+      - image: circleci/node:8
+    steps:
       - run:
           name: GH Pages Deploy
           command: ./.deploy-scripts/deploy-ghpages.sh
 
 workflows:
   version: 2
-  bob:
+  master:
     jobs:
-      - flob
+      - build-and-test
+      - deploy-to-ghpages
