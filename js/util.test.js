@@ -93,3 +93,6 @@ test('matchesFilter: two negative one positive', () => {
     expect(utils.matchesFilter(filters, 'world hi')).toEqual(false);
     expect(utils.matchesFilter(filters, 'hi')).toEqual(true);
 });
+test('iso: single digit tests', () => {
+    expect(utils.iso(new Date('1995-01-01T03:24:00'))).toEqual("1995-01-01 03:24");
+});

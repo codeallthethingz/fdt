@@ -24,5 +24,8 @@
       "node_modules",
       ".c9"
     ]
+  },
+  "dependencies": {
+    "moment": "^2.22.2"
   }
 }

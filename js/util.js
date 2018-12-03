@@ -1,3 +1,12 @@
+var require;
+if (!require) {
+    require = function() {};
+}
+else {
+    var moment = require('moment');
+}
+
+
 if (!module) {
     var module = {};
     module.exports = {};
@@ -65,7 +74,14 @@ function matchesFilter(filters, haystack) {
     return true;
 }
 
+
+function iso(someDate) {
+    var value = moment(someDate).format('YYYY-MM-DD HH:mm');
+    return value;
+}
+
 module.exports.parseFilters = parseFilters;
 module.exports.NEGATIVE = NEGATIVE;
 module.exports.POSITIVE = POSITIVE;
 module.exports.matchesFilter = matchesFilter;
+module.exports.iso = iso;
