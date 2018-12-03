@@ -26,7 +26,7 @@ jobs:
             JEST_JUNIT_OUTPUT: test-results/jest/junit.xml
 
       - persist_to_workspace:
-          root: ~/demo-react-native
+          root: ~/food-diary-tracker
           paths:
             - node_modules
 
