@@ -74,12 +74,10 @@ function matchesFilter(filters, haystack) {
     return true;
 }
 
-
 function iso(someDate) {
     var value = moment(someDate).format('YYYY-MM-DD HH:mm');
     return value;
 }
-
 
 function pushGeo(data) {
     data.push(currentLocation.latitude ? currentLocation.latitude : 'unknown');
