@@ -80,8 +80,16 @@ function iso(someDate) {
     return value;
 }
 
+
+function pushGeo(data) {
+    data.push(currentLocation.latitude ? currentLocation.latitude : 'unknown');
+    data.push(currentLocation.longitude ? currentLocation.longitude : 'unknown');
+    data.push(currentLocation.altitude ? currentLocation.altitude : 'unknown');
+}
+
 module.exports.parseFilters = parseFilters;
 module.exports.NEGATIVE = NEGATIVE;
 module.exports.POSITIVE = POSITIVE;
 module.exports.matchesFilter = matchesFilter;
 module.exports.iso = iso;
+module.exports.pushGeo = pushGeo;

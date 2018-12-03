@@ -311,12 +311,6 @@ function save(eventType, string, date, severity) {
     });
 }
 
-function pushGeo(data) {
-    data.push(currentLocation.latitude ? currentLocation.latitude : 'unknown');
-    data.push(currentLocation.longitude ? currentLocation.longitude : 'unknown');
-    data.push(currentLocation.altitude ? currentLocation.altitude : 'unknown');
-}
-
 function findOrCreateDocId(callback) {
 
     $('#overlay').html('Searching for tracker sheet');
