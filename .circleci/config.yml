@@ -41,6 +41,7 @@ jobs:
     docker:
       - image: circleci/node:8
     steps:
+      - checkout
       - run:
           name: GH Pages Deploy
           command: ./.deploy-scripts/deploy-ghpages.sh
