@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  bob:
+  flob:
     working_directory: ~/food-diary-tracker
     docker:
       - image: circleci/node:8
