@@ -263,10 +263,6 @@ function createGraphs(filterText) {
     });
 }
 
-function iso(someDate) {
-    var value = moment(someDate).format('YYYY-MM-DD HH:mm');
-    return value;
-}
 
 
 function save(eventType, string, date, severity) {
