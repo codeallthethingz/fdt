@@ -52,3 +52,9 @@ workflows:
     jobs:
       - build-and-test
       - deploy-to-ghpages
+          filters:
+            branches:
+              only:
+                - master
+        requires:
+          - one
