@@ -1,10 +1,2 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/node:stretch
-    steps:
-      - checkout
-      - run:
-          name: GH Pages Deploy
-          command: ./.deploy-scripts/deploy-ghpages.sh
+# Config Translation Error
+# Could not find stored inference data.  Please run a build and try again.
