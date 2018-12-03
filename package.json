@@ -1,0 +1,28 @@
+{
+  "name": "food-diary-tracker",
+  "version": "0.0.15",
+  "description": "Food Diary Tracker === [![CircleCI](https://circleci.com/gh/codeallthethingz/food-diary-tracker.svg?style=svg)](https://circleci.com/gh/trackallthethingz/food-diary-tracker)",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeallthethingz/food-diary-tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codeallthethingz/food-diary-tracker/issues"
+  },
+  "homepage": "https://github.com/codeallthethingz/food-diary-tracker#readme",
+  "devDependencies": {
+    "jest": "^23.6.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "node_modules",
+      ".c9"
+    ]
+  }
+}
