@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  node-build:
+  node:
     working_directory: ~/food-diary-tracker
     docker:
       - image: circleci/node:8
@@ -38,6 +38,6 @@ jobs:
 
 workflows:
   version: 2
-  node-build:
+  node:
     jobs:
       - node
