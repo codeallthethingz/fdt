@@ -2,6 +2,7 @@
 /* global Bind */
 /* global $ */
 
+
 var CLIENT_ID = '712538785806-7f6lggo668ua7skec0au0n9qmb1n8mrr.apps.googleusercontent.com';
 var docId = '';
 var weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -118,50 +119,7 @@ function initAnalytics() {
     });
 
 }
-var POSITIVE = 1;
-var NEGATIVE = 2;
 
-function parseFilters(filterText) {
-    if (!filterText) {
-        return [];
-    }
-    var tokens = filterText.trim().split(/\s+/);
-    var filters = [];
-    var phraseToken = '';
-    var phraseTokenType = null;
-    for (var i = 0; i < tokens.length; i++) {
-        var token = tokens[i].trim().toLowerCase();
-        if (phraseTokenType != null || token.startsWith('"') || token.startsWith('-"') || token.endsWith('"')) {
-            if (token.startsWith('"')) {
-                phraseToken += token.substr(1);
-                phraseTokenType = POSITIVE;
-                continue;
-            }
-            else if (token.startsWith('-"')) {
-                phraseToken += token.substring(2);
-                phraseTokenType = NEGATIVE;
-                continue;
-            }
-            else if (token.endsWith('"')) {
-                phraseToken = phraseToken + ' ' + token.substr(0, token.length - 1);
-                token = (phraseTokenType == NEGATIVE ? '-' : '') + phraseToken;
-                phraseToken = '';
-                phraseTokenType = null;
-            }
-            else {
-                phraseToken += ' ' + token;
-                continue;
-            }
-        }
-        if (token.startsWith('-')) {
-            filters.push({ token: token.substring(1), type: NEGATIVE });
-        }
-        else {
-            filters.push({ token: token, type: POSITIVE });
-        }
-    }
-    return filters;
-}
 
 function createGraphs(filterText) {
     hideOverflow();
@@ -303,23 +261,6 @@ function createGraphs(filterText) {
             console.error('error: ' + reason.result.error.message);
         });
     });
-}
-
-function matchesFilter(filters, haystack) {
-    if (filters.length == 0) {
-        return true;
-    }
-    for (var i = 0; i < filters.length; i++) {
-        if (haystack.includes(filters[i].token) && filters[i].type == NEGATIVE) {
-            return false;
-        }
-    }
-    for (var i = 0; i < filters.length; i++) {
-        if (!haystack.includes(filters[i].token) && filters[i].type == POSITIVE) {
-            return false;
-        }
-    }
-    return true;
 }
 
 function iso(someDate) {
