@@ -26,9 +26,19 @@ $(document).on("pageinit", "#pageAnalytics", function(event) {
 $(document).on("pagebeforeshow", "#pageAnalytics", initAnalytics);
 $(document).on("pageinit", "#pageRecent", function(event) {
     showOverflow();
+    setupUiRecent();
     gapi.load('client:auth2', initRecent);
 });
 $(document).on("pagebeforeshow", "#pageRecent", initRecent);
+
+function setupUiRecent() {
+    $('#backButton').on('click', function() {
+        createRecent(moment(backRecentDate));
+    });
+    $('#forwardButton').on('click', function() {
+        createRecent(moment(forwardRecentDate));
+    });
+}
 
 function setupUiAnalytics() {
     $('#filterTextButton').on('click', function() {
@@ -54,8 +64,10 @@ function initRecent() {
     });
 }
 
+var backRecentDate = '';
+var forwardRecentDate = '';
 
-function createRecent() {
+function createRecent(passedInDate) {
     hideOverflow();
 
     var params = {
@@ -64,21 +76,29 @@ function createRecent() {
         majorDimension: 'ROWS'
     };
 
+    var currentDate = passedInDate ? passedInDate.format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
+
     gapi.client.sheets.spreadsheets.values.get(params).then(function(recentResponse) {
 
         var today = [];
 
-        var currentDate = moment().format('YYYY-MM-DD')
         if (recentResponse.result.values.length == 0) {
-            $('#recentContent').html('No entries for today');
+            $('#recentContent').html('No entries found');
             return;
         }
 
-
+        backRecentDate = '';
+        forwardRecentDate = '999999999999999'
         var values = recentResponse.result.values;
         for (var i = 0; i < values.length; i++) {
             if (values[i][3].startsWith(currentDate)) {
                 today.push(values[i]);
+            }
+            if (values[i][3].substring(0, 10) > backRecentDate && values[i][3].substring(0, 10) < currentDate) {
+                backRecentDate = values[i][3].substring(0, 10);
+            }
+            if (values[i][3].substring(0, 10) > currentDate && values[i][3].substring(0, 10) < forwardRecentDate) {
+                forwardRecentDate = values[i][3].substring(0, 10);
             }
         }
 
@@ -91,7 +111,8 @@ function createRecent() {
             return one[3] < two[3] ? -1 : one[3] > two[3] ? 1 : 0;
         })
 
-        var output = '<ul>';
+
+        var output = '<h2>' + currentDate + '</h2><ul>';
         for (var i = 0; i < today.length; i++) {
             output += '<li>' + today[i][3].substring(11) + ' ' + today[i][1] + '</li>';
         }
@@ -172,7 +193,6 @@ function createGraphs(filterText) {
                         title = title.replace(whitelist[j], "").trim();
                     }
                 }
-
 
                 if (values[i][0].toLowerCase() === 'effect') {
                     effects.push({ 'title': title, 'date': date, 'severity': values[i][2] });
@@ -582,7 +602,6 @@ function geoSuccess(geo) {
         'longitude': geo.coords.longitude,
         'altitude': geo.coords.altitude
     };
-    console.log(currentLocation);
 }
 
 function handleClientLoad() {
